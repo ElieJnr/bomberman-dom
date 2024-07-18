@@ -39,7 +39,7 @@ BOMBERMAN-DOM:
 
     #Équipe Frontend UI:
     - Responsabilités : Développement de l'interface utilisateur et intégration avec le Virtual DOM.:
-    - Membres : 2 personnes:
+    - Membres : 2 personnes:@ousmasene @emalo
     Tâches :
     Création des composants UI :
          ☐ menu de démarrage, 
@@ -50,7 +50,7 @@ BOMBERMAN-DOM:
         
     #Équipe Logique de Jeu:
    - Responsabilités : Implémentation des règles de jeu, gestion des interactions joueur-environnement, et calculs de collision.:
-   - Membres : 2 personnes:
+   - Membres : 2 personnes:@mbadiao @edieng
     Tâches :
         Développement des mécaniques de base :
             ☐ mouvements des joueurs, 
@@ -61,7 +61,7 @@ BOMBERMAN-DOM:
 
     #Équipe Serveur WebSocket:
     - Responsabilités : Mise en place du serveur WebSocket pour la communication en temps réel entre les joueurs.
-    - Membres : 1 personne
+    - Membres : 1 personne @emalo?
     Tâches :
         ☐ Développement du serveur WebSocket pour gérer les connexions des joueurs.
         ☐ Implémentation du chat en jeu pour permettre la communication entre les joueurs.
@@ -70,7 +70,7 @@ BOMBERMAN-DOM:
 
     #Équipe Génération de Carte et Blocs:
     - Responsabilités : Création de cartes de jeu aléatoires et gestion des différents types de blocs.
-    - Membres : 1 personne
+    - Membres : 1 personne @babacan
     Tâches :
         ☐ Génération aléatoire de la carte de jeu avec des obstacles et des zones libres pour les joueurs.
         ☐ Placement des blocs destructibles et non destructibles selon la configuration de la carte.
