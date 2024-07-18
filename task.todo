@@ -2,53 +2,80 @@ BOMBERMAN-DOM:
     Structure:
         BOMBERMAN-DOM/
         │ 
-        ├── doc/
-        │   ├── AUDIT.md
-        │   └── subject.md
-        ├── src/
-        │   ├── core/
-        │   │   ├── chat.js       // contient les fonctions de gestion du chat
-        │   │   ├── core.js       // contient les fonctions de gestion du jeux (start, stop, pause, resume)
-        │   │   ├── game.js       // contient les fonctions de gestion du jeux
-        │   │   ├── map.js        // contient les fonctions de génération de la map les bricks et les bonus
-        │   │   ├── player.js     // contient les fonctions de déplacement (peut etre)
-        │   │   ├── templates.js  // associe tous les ui du jeux
-        │   │   └── utils
-        │   │       └── helpers.js 
-        │   ├── server/
-        │   │   ├── server.go // s'il y'a du go 
-        |   |   └── main.go
-        |   └── assets/
-        ├── index.html
+        ├── src/                       # Dossier source principal
+        │   ├── core/                  # Noyau du framework et utilitaires
+        │   │   ├── dom.js             # Gestion du DOM et Virtual DOM
+        │   │   ├── events.js          # Gestion des événements
+        │   │   ├── router.js          # Routage pour les différentes pages
+        │   │   ├── state.js           # Gestion de l'état de l'application
+        │   │   └── utils/             # Utilitaires divers
+        │   │       └── helpers.js     # Fonctions utilitaires
+        │   │
+        │   └── your_project_name/     # Dossier spécifique au projet
+        │       ├── app.js             # Point d'entrée de l'application
+        │       ├── gameLogic.js       # Logique de jeu principale
+        │       ├── server.js          # Serveur WebSocket pour le chat et le jeu
+        │       ├── assets/            # Ressources telles que images et sons
+        │       ├── components/        # Composants réutilisables
+        │       │   ├── GameBoard.js   # Composant du plateau de jeu
+        │       │   ├── Player.js      # Composant pour gérer les joueurs
+        │       │   ├── Bomb.js        # Composant pour les bombes et explosions
+        │       │   ├── PowerUp.js     # Composant pour les power-ups
+        │       │   └── Chat.js        # Composant pour le chat multijoueur
+        │       ├── public/            # Dossier des fichiers publics
+        │       │   ├── index.html     # Page d'accueil du jeu
+        │       │   └── styles.css     # Feuille de style CSS principale
+        │       └── maps/              # Dossier pour les différentes cartes
+        │           ├── map1.json      # Exemple de carte JSON
+        │           └── map2.json      # Autre exemple de carte json
+        |
         ├── README.md
         └── task.todo
+        
     Require:
-        Restrictions:
-            ☐ Do not use Canvas, Web-GL, or other frameworks.
-            ☐ Use the custom framework from the mini-framework project.
-        Chat:
-            ☐ Implement a chat feature for player communication using WebSockets.
-        Players:
-            ☐ Support 2 - 4 players.
-            ☐ Each player starts with 3 lives.
-        Map:
-            ☐ Create a fixed map visible to all players.
-            ☐ Include indestructible walls and destructible blocks.
-            ☐ Place walls in fixed positions.
-            ☐ Generate blocks randomly on the map.
-            ☐ Ensure starting positions are safe from immediate bomb explosions.
-            ☐ Place players in the corners at the start.
-        Power-ups:
-            ☐ Implement power-ups that appear randomly when blocks are destroyed:
-                ☐ Bombs: Increase the number of bombs a player can drop.
-                ☐ Flames: Increase the explosion range by 1 block.
-                ☐ Speed: Increase movement speed.
-        User Interface:
-            ☐ Create a page for entering a nickname.
-            ☐ Create a waiting page with a player counter.
-            ☐ Increment player counter when a new player joins.
-            ☐ Start a 10-second timer if more than 2 players join and the count doesn't reach 4 within 20 seconds.
-            ☐ Start the game after the 10-second timer if 4 players join within 20 seconds.
+    Restrictions:
+        ☐ Do not use Canvas, Web-GL, or other frameworks.
+        ☐ Use the custom framework from the mini-framework project.
+
+    #Équipe Frontend UI:
+    - Responsabilités : Développement de l'interface utilisateur et intégration avec le Virtual DOM.:
+    - Membres : 2 personnes:
+    Tâches :
+    Création des composants UI :
+         ☐ menu de démarrage, 
+         ☐ interface de jeu,
+         ☐ écrans de victoire/défaite.
+    ☐ Intégration avec les fonctionnalités de rendu du jeu (positions des joueurs, explosions, power-ups).
+    ☐ Optimisation du rendu pour maintenir 60 FPS.
+        
+    #Équipe Logique de Jeu:
+   - Responsabilités : Implémentation des règles de jeu, gestion des interactions joueur-environnement, et calculs de collision.:
+   - Membres : 2 personnes:
+    Tâches :
+        Développement des mécaniques de base :
+            ☐ mouvements des joueurs, 
+            ☐ pose et explosion des bombes.
+        Gestion des collisions : 
+            ☐ détection entre les joueurs, les bombes, les explosions et les obstacles.
+        ☐ I   mplémentation des règles de fin de partie et de gestion des vies des joueurs.
+
+    #Équipe Serveur WebSocket:
+    - Responsabilités : Mise en place du serveur WebSocket pour la communication en temps réel entre les joueurs.
+    - Membres : 1 personne
+    Tâches :
+        ☐ Développement du serveur WebSocket pour gérer les connexions des joueurs.
+        ☐ Implémentation du chat en jeu pour permettre la communication entre les joueurs.
+       - Synchronisation du jeu :
+        ☐ envoi et réception des actions des joueurs, gestion des déconnexions.
+
+    #Équipe Génération de Carte et Blocs:
+    - Responsabilités : Création de cartes de jeu aléatoires et gestion des différents types de blocs.
+    - Membres : 1 personne
+    Tâches :
+        ☐ Génération aléatoire de la carte de jeu avec des obstacles et des zones libres pour les joueurs.
+        ☐ Placement des blocs destructibles et non destructibles selon la configuration de la carte.
+        ☐ Intégration des power-ups aléatoires dans les blocs destructibles.
+
     Bonus:
         Game Modes:
             ☐ Develop an AI for Solo + Co-Op mode.
