@@ -1,0 +1,80 @@
+BOMBERMAN-DOM:
+    Structure:
+        BOMBERMAN-DOM/
+        │ 
+        ├── doc/
+        │   ├── AUDIT.md
+        │   └── subject.md
+        ├── src/
+        │   ├── core/
+        │   │   ├── chat.js       // contient les fonctions de gestion du chat
+        │   │   ├── core.js       // contient les fonctions de gestion du jeux (start, stop, pause, resume)
+        │   │   ├── game.js       // contient les fonctions de gestion du jeux
+        │   │   ├── map.js        // contient les fonctions de génération de la map les bricks et les bonus
+        │   │   ├── player.js     // contient les fonctions de déplacement (peut etre)
+        │   │   ├── templates.js  // associe tous les ui du jeux
+        │   │   └── utils
+        │   │       └── helpers.js 
+        │   ├── server/
+        │   │   ├── server.go // s'il y'a du go 
+        |   |   └── main.go
+        |   └── assets/
+        ├── index.html
+        ├── README.md
+        └── task.todo
+    Require:
+        Restrictions:
+            ☐ Do not use Canvas, Web-GL, or other frameworks.
+            ☐ Use the custom framework from the mini-framework project.
+        Chat:
+            ☐ Implement a chat feature for player communication using WebSockets.
+        Players:
+            ☐ Support 2 - 4 players.
+            ☐ Each player starts with 3 lives.
+        Map:
+            ☐ Create a fixed map visible to all players.
+            ☐ Include indestructible walls and destructible blocks.
+            ☐ Place walls in fixed positions.
+            ☐ Generate blocks randomly on the map.
+            ☐ Ensure starting positions are safe from immediate bomb explosions.
+            ☐ Place players in the corners at the start.
+        Power-ups:
+            ☐ Implement power-ups that appear randomly when blocks are destroyed:
+                ☐ Bombs: Increase the number of bombs a player can drop.
+                ☐ Flames: Increase the explosion range by 1 block.
+                ☐ Speed: Increase movement speed.
+        User Interface:
+            ☐ Create a page for entering a nickname.
+            ☐ Create a waiting page with a player counter.
+            ☐ Increment player counter when a new player joins.
+            ☐ Start a 10-second timer if more than 2 players join and the count doesn't reach 4 within 20 seconds.
+            ☐ Start the game after the 10-second timer if 4 players join within 20 seconds.
+    Bonus:
+        Game Modes:
+            ☐ Develop an AI for Solo + Co-Op mode.
+            ☐ Implement a 2v2 Team mode.
+        Additional Power-ups:
+            ☐ Bomb Push: Ability to throw a bomb after placing
+            ☐ Bomb Pass: Ability to
+            ☐ Block Pass: Ability to
+            ☐ Detonator: Ability to
+            ☐ 1 Up: Grants an extra life.
+            ☐ Drop power-ups upon player death.
+        After Death Interaction:
+            ☐ Implement ghost mode for dead players.
+            ☐ Allow ghosts to resurrect other players by touching them.
+            ☐ Ensure ghosts die permanently if caught in a bomb explosion.
+    AUDIT:
+        ☐ Verify game runs smoothly at 60fps.
+        ☐ Test chat functionality.
+        ☐ Ensure power-ups work as intended.
+        ☐ Test different player configurations (2-4 players).
+        ☐ Verify safety of starting positions.
+        ☐ Ensure proper player elimination and game ending.
+        ☐ confirm that there are at least 3 types of power ups
+
+        //legende
+        ☐ ctrl + Enter (initiliser une tâche)
+        ☐ @started(24-05-25 13:45) ctrl + Enter / alt + s (pour demarrer une tâche)
+        ✔ @done(24-05-25 13:46) alt + D (pour terminer une tâche)
+        ✘ @cancelled(24-05-25 13:47) (pour annuler une tâche)
