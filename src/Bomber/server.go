@@ -47,9 +47,9 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleMessages() {
-
 	for {
 		msg := <-broadcast
+		// fmt.Println("msg", msg)
 		for client, name := range clients {
 			if name != msg.Name {
 				err := client.WriteJSON(msg)
@@ -57,6 +57,7 @@ func handleMessages() {
 					fmt.Println("Error sending message:", err)
 					client.Close()
 					delete(clients, client)
+					broadcast <- Message{Type: "playerDisconnected", Name: name}
 				}
 			}
 		}

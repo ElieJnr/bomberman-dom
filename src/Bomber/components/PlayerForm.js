@@ -1,6 +1,10 @@
 import VDOM from '../../core/dom.mjs';
+import { createChat } from './Chat.js';
+import { createGame } from './GameBoard.js';
+import { UnmountComponent , MountComponent} from '../app.js';
 
-const ws = new WebSocket('ws://localhost:8080/');
+const ws = new WebSocket('ws://localhost:8080');
+
 export let playerName = "";
 
 export function createForm() {
@@ -15,11 +19,10 @@ export function createForm() {
 
 function handleSubmit(event) {
     event.preventDefault();
-    playerName = document.getElementById('playerName').value;
+    const playerName = document.getElementById('playerName').value;
     if (playerName) {
         ws.send(JSON.stringify({ type: 'join', name: playerName }));
-
-        document.getElementById('form-container').style.display = 'none';
-        document.getElementById('chat-container').style.display = 'block';
+        UnmountComponent(createForm);
+        MountComponent(createGame, createChat);
     }
 }

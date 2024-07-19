@@ -1,37 +1,138 @@
-#app {
-    font-family: Arial, sans-serif;
+/* Réinitialisation et mise en page globale */
+body, html {
+    height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
+}
+
+/* Conteneur principal pour tous les composants */
+#home-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: row;
     height: 100vh;
+    width: 100vw;
     background-color: #f0f0f0;
 }
 
-#form-container {
-    text-align: center;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
+/* Formulaire */
 #nameForm {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    margin: auto;
 }
 
-#playerName {
+/* Style du label du formulaire */
+#nameForm label {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Style de l'input du formulaire */
+#nameForm input {
     padding: 10px;
-    margin: 10px 0;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    width: 80%;
-    max-width: 300px;
+    width: 100%;
+    box-sizing: border-box; /* Pour s'assurer que le padding ne dépasse pas la largeur */
 }
 
+/* Style du bouton du formulaire */
+#nameForm button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Changement de couleur du bouton au survol */
+#nameForm button:hover {
+    background-color: #0056b3;
+}
+
+/* Conteneur du jeu */
+#game-container {
+    flex: 2;
+    display: none;
+    background-color: #e0e0e0;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Style du contenu du jeu */
+#game-content {
+    width: 100%;
+    height: 100%;
+    background-color: #c0c0c0;
+}
+
+/* Conteneur du chat */
+#chat-container {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    border-left: 1px solid #ccc;
+    justify-content: space-between;
+}
+
+/* Style des messages du chat */
+#messages {
+    height: calc(100% - 60px);
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #fafafa;
+}
+
+/* Style du formulaire de chat */
+#chatForm {
+    display: flex;
+    justify-content: space-between;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+    padding: 10px;
+    box-sizing: border-box; /* Pour inclure le padding dans la largeur */
+}
+
+/* Style de l'input du message du chat */
+#chatMessage {
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: calc(100% - 120px); /* Ajuster la largeur pour laisser de la place au bouton */
+    box-sizing: border-box; /* Pour inclure le padding dans la largeur */
+}
+
+/* Style du bouton d'envoi du chat */
+#chatForm button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Changement de couleur du bouton d'envoi au survol */
+#chatForm button:hover {
+    background-color: #0056b3;
+}
+
+/* Style global des boutons */
 button {
     padding: 10px 20px;
     border: none;
@@ -42,63 +143,7 @@ button {
     font-size: 16px;
 }
 
+/* Changement de couleur des boutons au survol */
 button:hover {
     background-color: #0056b3;
-}
-
-#chat-container {
-    display: none; 
-    text-align: center;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 600px;
-    height: 400px;
-    overflow: hidden;
-    position: relative;
-}
-
-#messages {
-    height: calc(100% - 60px);
-    overflow-y: auto;
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
-    text-align: left;
-    background-color: #f9f9f9;
-}
-
-#chatForm {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-#chatMessage {
-    padding: 10px;
-    margin-right: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 80%;
-    max-width: 500px;
-}
-
-#chatForm button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    background-color: #28a745;
-    color: #fff;
-    cursor: pointer;
-}
-
-#chatForm button:hover {
-    background-color: #218838;
-}
-
-#messages p {
-    margin: 5px 0;
 }
