@@ -1,6 +1,7 @@
-import { appendMessage } from './components/Chat.js';
+import { displayMessage } from './components/Chat.js';
 import { updatePlayer } from './components/Player.js';
 import { HomeComponent } from './components/Home.js';
+import { playerName } from './components/PlayerForm.js';
 
 const ws = new WebSocket('ws://localhost:8080');
 
@@ -12,14 +13,14 @@ ws.onmessage = (event) => {
     console.log('Received message:', event.data);
     const data = JSON.parse(event.data);
     if (data.type === 'message') {
-        appendMessage(`${data.name}: ${data.content}`);
+        displayMessage(`${data.name}: ${data.content}`, data.name === playerName);
     } else if (data.type === 'action') {
         updatePlayer(data.name, data.action);
     } else if (data.type === 'join') {
-        appendMessage(`${data.name} has joined the game.\n`);
+        displayMessage(`${data.name} has joined the game.\n`, false);
         // updatePlayer(data.name, '')
     } else if (data.type === 'playerDisconnected') {
-        appendMessage(`${data.name} has left the game.\n`);
+        displayMessage(`${data.name} has left the game.\n`, false);
     }
 };
 

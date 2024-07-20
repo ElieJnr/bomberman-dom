@@ -49,7 +49,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 func handleMessages() {
 	for {
 		msg := <-broadcast
-		// fmt.Println("msg", msg)
+		fmt.Println("msg", msg)
 		for client, name := range clients {
 			if name != msg.Name {
 				err := client.WriteJSON(msg)

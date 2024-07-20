@@ -19,7 +19,8 @@ export function createForm() {
 
 function handleSubmit(event) {
     event.preventDefault();
-    const playerName = document.getElementById('playerName').value;
+    playerName = document.getElementById('playerName').value;
+    console.log("playerName", playerName);
     if (playerName) {
         ws.send(JSON.stringify({ type: 'join', name: playerName }));
         UnmountComponent(createForm);
