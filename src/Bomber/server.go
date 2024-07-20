@@ -13,15 +13,22 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-var clients = make(map[*websocket.Conn]string)
-var broadcast = make(chan Message)
-var ClientName string
+var (
+	waitingRoom = make(map[*websocket.Conn]string)
+	broadcast   = make(chan Message)
+	ClientName  string
+	playerCount = 0
+	maxPlayers  = 4
+	maxWaitTime = 20
+)
 
 type Message struct {
-	Type    string `json:"type"`
-	Name    string `json:"name"`
-	Content string `json:"content"`
-	Action  string `json:"action"`
+	Type        string `json:"type"`
+	Name        string `json:"name"`
+	Content     string `json:"content"`
+	Action      string `json:"action"`
+	Seconds     int    `json:"seconds,omitempty"`
+	PlayerCount int    `json:"playerCount,omitempty"`
 }
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +39,6 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	clients[conn] = ""
 	fmt.Println("Client connected")
 
 	for {
@@ -40,20 +46,53 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		err := conn.ReadJSON(&msg)
 		if err != nil {
 			fmt.Println("Error reading message:", err)
-			broadcast <- Message{Type: "playerDisconnected", Name: clients[conn]}
-			delete(clients, conn)
+			if waitingRoom[conn] != "" {
+				broadcast <- Message{Type: "playerDisconnected", Name: waitingRoom[conn]}
+				delete(waitingRoom, conn)
+				playerCount--
+				updatePlayerCount()
+			}
 			break
 		}
 
-		if msg.Type == "logout" {
-			ClientName = msg.Name
-			fmt.Println("name", msg)
-			delete(clients, conn)
-			broadcast <- Message{Type: "playerDisconnected", Name: ClientName}
+		if msg.Type == "join" {
+			if waitingRoom[conn] == "" {
+				waitingRoom[conn] = msg.Name
+				playerCount++
+				updatePlayerCount()
+				broadcast <- Message{Type: "playerJoined", Name: msg.Name,  Seconds: maxWaitTime, PlayerCount: playerCount}
+				broadcast <- Message{Type: "gameNotStarting", Seconds: maxWaitTime, PlayerCount: playerCount}
+				fmt.Println("playerCount", playerCount)
+				resetWaitingRoom()
+			}
+		} else if msg.Type == "logout" {
+			if waitingRoom[conn] != "" {
+				broadcast <- Message{Type: "playerDisconnected", Name: waitingRoom[conn]}
+				delete(waitingRoom, conn)
+				playerCount--
+				updatePlayerCount()
+			}
 			break
+		} else {
+			broadcast <- msg
 		}
+	}
+}
 
-		broadcast <- msg
+func resetWaitingRoom() {
+	waitingRoom = make(map[*websocket.Conn]string)
+	playerCount = 0
+}
+
+func updatePlayerCount() {
+	for client := range waitingRoom {
+		err := client.WriteJSON(Message{Type: "playerCount", PlayerCount: playerCount})
+		if err != nil {
+			fmt.Println("Error sending player count:", err)
+			client.Close()
+			delete(waitingRoom, client)
+			playerCount--
+		}
 	}
 }
 
@@ -61,15 +100,16 @@ func handleMessages() {
 	for {
 		msg := <-broadcast
 		fmt.Println("msg", msg)
-		for client, name := range clients {
+		for client, name := range waitingRoom {
 			if name != msg.Name {
-				err := client.WriteJSON(msg)
-				if err != nil {
-					fmt.Println("Error sending message:", err)
-					broadcast <- Message{Type: "playerDisconnected", Name: name}
-					client.Close()
-					delete(clients, client)
-				}
+			fmt.Println("msg1", msg)
+			err := client.WriteJSON(msg)
+			if err != nil {
+				fmt.Println("Error sending message:", err)
+				broadcast <- Message{Type: "playerDisconnected", Name: name}
+				client.Close()
+				delete(waitingRoom, client)
+			}
 			}
 		}
 	}

@@ -17,14 +17,12 @@ function sendMessage(event) {
     event.preventDefault();
     const message = document.getElementById('chatMessage').value;
     if (message) {
-        console.log('Chat Sending message:', JSON.stringify({ type: 'message', name: playerName, content: message }));
         ws.send(JSON.stringify({ type: 'message', name: playerName, content: message }));
         document.getElementById('chatMessage').value = '';
     }
 }
 
 export function displayMessage(message, isSent = false) {
-    console.log('message to append', message);
     const messagesContainer = document.getElementById('messages');
     const messageElement = VDOM.createElement('div', {
         class: `message ${isSent ? 'sent' : 'received'}`

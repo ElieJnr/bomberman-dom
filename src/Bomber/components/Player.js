@@ -76,16 +76,10 @@ function placeBomb(position) {
 export function removePlayer(playerName) {
     const playerVDOM = playerElements[playerName];
     if (playerVDOM) {
-        // Convertir l'objet VDOM en élément DOM
         const playerElement = playerVDOM.render();
-        
-        // Debugging pour vérifier l'élément rendu
-        console.log(playerElement);
 
-        // Utiliser UnmountComponent pour retirer l'élément
         UnmountComponent('#game-content', playerElement);
         
-        // Nettoyer les références des éléments du joueur
         delete playerElements[playerName];
         delete playerPositions[playerName];
     }

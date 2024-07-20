@@ -19,11 +19,14 @@ export function createForm() {
 
 function handleSubmit(event) {
     event.preventDefault();
-    playerName = document.getElementById('playerName').value;
+    playerName = document.getElementById('playerName').value.trim();
     console.log("playerName", playerName);
+
     if (playerName) {
         ws.send(JSON.stringify({ type: 'join', name: playerName }));
-        UnmountComponent('#app',createForm);
-        MountComponent('#app',createGame, createChat);
+        // UnmountComponent('#app', createForm);
+        MountComponent('#app', createGame, createChat);
+    } else {
+        alert('Please enter a valid name.');
     }
 }
