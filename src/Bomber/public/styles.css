@@ -86,6 +86,22 @@ body, html {
     align-items: center;
 }
 
+.player {
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    background-color: #ff0000; 
+    border-radius: 50%;
+}
+
+.bomb {
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    background-color: #000000; 
+    border-radius: 50%;
+}
+
 /* ======================CHAT CONTAINER====================== */
 #chat-container {
     flex: 1;

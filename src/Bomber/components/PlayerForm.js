@@ -23,7 +23,7 @@ function handleSubmit(event) {
     console.log("playerName", playerName);
     if (playerName) {
         ws.send(JSON.stringify({ type: 'join', name: playerName }));
-        UnmountComponent(createForm);
-        MountComponent(createGame, createChat);
+        UnmountComponent('#app',createForm);
+        MountComponent('#app',createGame, createChat);
     }
 }

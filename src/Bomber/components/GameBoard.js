@@ -1,4 +1,5 @@
 import VDOM from '../../core/dom.mjs';
+import { playerName } from './PlayerForm.js';
 
 const ws = new WebSocket('ws://localhost:8080/');
 
@@ -11,7 +12,7 @@ export function createGame() {
 function handleKeyDown(event) {
     const action = getActionFromKey(event.key);
     if (action) {
-        ws.send(JSON.stringify({ type: 'action', name: playerName, action }));
+        ws.send(JSON.stringify({ type: 'action', name: playerName, action: action }));
     }
 }
 
@@ -22,7 +23,11 @@ function getActionFromKey(key) {
         case 'ArrowRight':
             return 'move_right';
         case 'ArrowUp':
-            return 'jump';
+            return 'move_up';
+        case 'ArrowDown':
+            return 'move_down';
+        case ' ':
+            return 'place_bomb'; 
         default:
             return null;
     }

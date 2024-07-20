@@ -1,23 +1,78 @@
 import VDOM from '../../core/dom.mjs';
 
-export function updatePlayer(name, action) {
-    console.log('Updating player', name, 'with action', action);
-    const player = document.getElementById(`player-${name}`) || createPlayerElement(name);
+const playerElements = {};
+const playerPositions = {};
+const bombElements = [];
+
+export function updatePlayerAction(playerName, action) {
+    console.log(`${playerName} action: ${action}`);
+
+    let playerElement = playerElements[playerName];
+    if (!playerElement) {
+        playerElement = VDOM.createElement('div', {
+            class: 'player',
+            id: `player-${playerName}`,
+            style: { position: 'absolute', left: '0%', top: '0%' }
+        });
+        document.getElementById('game-content').appendChild(playerElement.render());
+        playerElements[playerName] = playerElement;
+        playerPositions[playerName] = { x: 0, y: 0 }; 
+    }
+
     switch (action) {
         case 'move_left':
-            player.style.left = `${parseInt(player.style.left || '0') - 10}px`;
+            playerPositions[playerName].x -= 1; 
             break;
         case 'move_right':
-            player.style.left = `${parseInt(player.style.left || '0') + 10}px`;
+            playerPositions[playerName].x += 1; 
             break;
-        case 'jump':
-            //  jumping logic j'ajouterai du code apres
+        case 'move_up':
+            playerPositions[playerName].y -= 1; 
+            break;
+        case 'move_down':
+            playerPositions[playerName].y += 1; 
+            break;
+        case 'place_bomb':
+            placeBomb(playerPositions[playerName]);
+            break;
+        default:
             break;
     }
+
+    const updatedPlayerElement = VDOM.createElement('div', {
+        class: 'player',
+        id: `player-${playerName}`,
+        style: { 
+            position: 'absolute',
+            left: `${playerPositions[playerName].x}%`,
+            top: `${playerPositions[playerName].y}%`
+        }
+    });
+
+    const oldElement = document.getElementById(`player-${playerName}`);
+    oldElement.replaceWith(updatedPlayerElement.render());
+    playerElements[playerName] = updatedPlayerElement;
 }
 
-function createPlayerElement(name) {
-    const player = VDOM.createElement('div', { id: `player-${name}`, class: 'player' }, name);
-    document.getElementById('game').appendChild(player.render());
-    return player;
+
+function placeBomb(position) {
+    const bombElement = VDOM.createElement('div', {
+        class: 'bomb',
+        style: {
+            left: `${position.x}%`,
+            top: `${position.y}%`
+        }
+    }
+    );
+    document.getElementById('game-content').appendChild(bombElement.render());
+    bombElements.push(bombElement);
+}
+
+export function removePlayer(playerName) {
+    const playerElement = playerElements[playerName];
+    if (playerElement) {
+        playerElement.remove();
+        delete playerElements[playerName];
+        delete playerPositions[playerName];
+    }
 }

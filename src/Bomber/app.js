@@ -1,5 +1,5 @@
 import { displayMessage } from './components/Chat.js';
-import { updatePlayer } from './components/Player.js';
+import { updatePlayerAction } from './components/Player.js';
 import { HomeComponent } from './components/Home.js';
 import { playerName } from './components/PlayerForm.js';
 
@@ -15,39 +15,57 @@ ws.onmessage = (event) => {
     if (data.type === 'message') {
         displayMessage(`${data.name}: ${data.content}`, data.name === playerName);
     } else if (data.type === 'action') {
-        updatePlayer(data.name, data.action);
+        updatePlayerAction(data.name, data.action);
     } else if (data.type === 'join') {
         displayMessage(`${data.name} has joined the game.\n`, false);
-        // updatePlayer(data.name, '')
+        updatePlayerAction(data.name, 'move_down');
     } else if (data.type === 'playerDisconnected') {
         displayMessage(`${data.name} has left the game.\n`, false);
+        removePlayer(data.name);
     }
 };
 
-// =================================GESTION DES ROUTES=====================================
+MountComponent('#app', HomeComponent)
 
-// const app = document.querySelector('#app');
-// app.appendChild(createForm().render());
-// app.appendChild(createChat().render());
+export function MountComponent(target, ...components) {
+    const container = document.querySelector(target);
+    if (!container) {
+        console.error(`Target container '${target}' not found.`);
+        return;
+    }
 
+    container.innerHTML = '';
 
-MountComponent(HomeComponent)
-
-
-export function MountComponent(...components) {
-    const app = document.querySelector('#app');
-    app.innerHTML = '';
     components.forEach(component => {
-        app.appendChild(component().render());
+        const element = component().render();
+        if (element) {
+            container.appendChild(element);
+        }
     });
 }
 
-export function UnmountComponent(...components) {
+
+/* export function UnmountComponent(...components) {
     const app = document.querySelector('#app');
     components.forEach(component => {
         const element = component().render();
         if (app.contains(element)) {
             app.removeChild(element);
+        }
+    });
+}
+ */
+export function UnmountComponent(target, ...components) {
+    const container = document.querySelector(target);
+    if (!container) {
+        console.error(`Target container '${target}' not found.`);
+        return;
+    }
+
+    components.forEach(component => {
+        const element = component().render();
+        if (element && container.contains(element)) {
+            container.removeChild(element);
         }
     });
 }

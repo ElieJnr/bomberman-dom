@@ -20,6 +20,7 @@ type Message struct {
 	Type    string `json:"type"`
 	Name    string `json:"name"`
 	Content string `json:"content"`
+	Action  string `json:"action"`
 }
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {
