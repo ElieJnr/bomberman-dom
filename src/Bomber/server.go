@@ -15,6 +15,7 @@ var upgrader = websocket.Upgrader{
 
 var clients = make(map[*websocket.Conn]string)
 var broadcast = make(chan Message)
+var ClientName string
 
 type Message struct {
 	Type    string `json:"type"`
@@ -39,7 +40,16 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		err := conn.ReadJSON(&msg)
 		if err != nil {
 			fmt.Println("Error reading message:", err)
+			broadcast <- Message{Type: "playerDisconnected", Name: clients[conn]}
 			delete(clients, conn)
+			break
+		}
+
+		if msg.Type == "logout" {
+			ClientName = msg.Name
+			fmt.Println("name", msg)
+			delete(clients, conn)
+			broadcast <- Message{Type: "playerDisconnected", Name: ClientName}
 			break
 		}
 
@@ -56,9 +66,9 @@ func handleMessages() {
 				err := client.WriteJSON(msg)
 				if err != nil {
 					fmt.Println("Error sending message:", err)
+					broadcast <- Message{Type: "playerDisconnected", Name: name}
 					client.Close()
 					delete(clients, client)
-					broadcast <- Message{Type: "playerDisconnected", Name: name}
 				}
 			}
 		}

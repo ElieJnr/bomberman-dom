@@ -2,6 +2,7 @@ import { displayMessage } from './components/Chat.js';
 import { updatePlayerAction } from './components/Player.js';
 import { HomeComponent } from './components/Home.js';
 import { playerName } from './components/PlayerForm.js';
+import { removePlayer } from './components/Player.js';
 
 const ws = new WebSocket('ws://localhost:8080');
 
@@ -27,6 +28,7 @@ ws.onmessage = (event) => {
 
 MountComponent('#app', HomeComponent)
 
+
 export function MountComponent(target, ...components) {
     const container = document.querySelector(target);
     if (!container) {
@@ -37,24 +39,27 @@ export function MountComponent(target, ...components) {
     container.innerHTML = '';
 
     components.forEach(component => {
-        const element = component().render();
+        let element;
+
+        if (typeof component === 'function') {
+            element = component().render();
+        } else if (typeof component === 'string') {
+            element = document.getElementById(component);
+        } else if (component instanceof HTMLElement) {
+            element = component;
+        } else if (component && typeof component.render === 'function') {
+            element = component.render();
+        } else {
+            console.error('Invalid component, ID, or element:', component);
+            return;
+        }
+
         if (element) {
             container.appendChild(element);
         }
     });
 }
 
-
-/* export function UnmountComponent(...components) {
-    const app = document.querySelector('#app');
-    components.forEach(component => {
-        const element = component().render();
-        if (app.contains(element)) {
-            app.removeChild(element);
-        }
-    });
-}
- */
 export function UnmountComponent(target, ...components) {
     const container = document.querySelector(target);
     if (!container) {
@@ -63,7 +68,20 @@ export function UnmountComponent(target, ...components) {
     }
 
     components.forEach(component => {
-        const element = component().render();
+        let element;
+        if (typeof component === 'function') {
+            element = component().render();
+        } else if (typeof component === 'string') {
+            element = document.getElementById(component);
+        } else if (component instanceof HTMLElement) {
+            element = component;
+        } else if (component && typeof component.render === 'function') {
+            element = component.render();
+        } else {
+            console.error('Invalid component, ID, or element:', component);
+            return;
+        }
+
         if (element && container.contains(element)) {
             container.removeChild(element);
         }

@@ -1,4 +1,5 @@
 import VDOM from '../../core/dom.mjs';
+import { UnmountComponent } from '../app.js';
 
 const playerElements = {};
 const playerPositions = {};
@@ -12,25 +13,29 @@ export function updatePlayerAction(playerName, action) {
         playerElement = VDOM.createElement('div', {
             class: 'player',
             id: `player-${playerName}`,
-            style: { position: 'absolute', left: '0%', top: '0%' }
+            style: {
+                position: 'absolute',
+                left: '0%',
+                top: '0%'
+            }
         });
-        document.getElementById('game-content').appendChild(playerElement.render());
+        document.getElementById('maps').appendChild(playerElement.render());
         playerElements[playerName] = playerElement;
-        playerPositions[playerName] = { x: 0, y: 0 }; 
+        playerPositions[playerName] = { x: 0, y: 0 };
     }
 
     switch (action) {
         case 'move_left':
-            playerPositions[playerName].x -= 1; 
+            playerPositions[playerName].x -= 1;
             break;
         case 'move_right':
-            playerPositions[playerName].x += 1; 
+            playerPositions[playerName].x += 1;
             break;
         case 'move_up':
-            playerPositions[playerName].y -= 1; 
+            playerPositions[playerName].y -= 1;
             break;
         case 'move_down':
-            playerPositions[playerName].y += 1; 
+            playerPositions[playerName].y += 1;
             break;
         case 'place_bomb':
             placeBomb(playerPositions[playerName]);
@@ -42,7 +47,7 @@ export function updatePlayerAction(playerName, action) {
     const updatedPlayerElement = VDOM.createElement('div', {
         class: 'player',
         id: `player-${playerName}`,
-        style: { 
+        style: {
             position: 'absolute',
             left: `${playerPositions[playerName].x}%`,
             top: `${playerPositions[playerName].y}%`
@@ -59,19 +64,28 @@ function placeBomb(position) {
     const bombElement = VDOM.createElement('div', {
         class: 'bomb',
         style: {
-            left: `${position.x}%`,
-            top: `${position.y}%`
+            left: `${position.x + 0.7}%`,
+            top: `${position.y + 0.7}%`
         }
     }
     );
-    document.getElementById('game-content').appendChild(bombElement.render());
-    bombElements.push(bombElement);
+    document.getElementById('maps').appendChild(bombElement.render());
+    bombElements.push(bombElement)
 }
 
 export function removePlayer(playerName) {
-    const playerElement = playerElements[playerName];
-    if (playerElement) {
-        playerElement.remove();
+    const playerVDOM = playerElements[playerName];
+    if (playerVDOM) {
+        // Convertir l'objet VDOM en élément DOM
+        const playerElement = playerVDOM.render();
+        
+        // Debugging pour vérifier l'élément rendu
+        console.log(playerElement);
+
+        // Utiliser UnmountComponent pour retirer l'élément
+        UnmountComponent('#game-content', playerElement);
+        
+        // Nettoyer les références des éléments du joueur
         delete playerElements[playerName];
         delete playerPositions[playerName];
     }
