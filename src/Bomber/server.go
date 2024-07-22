@@ -1,94 +1,117 @@
 package main
 
 import (
-	"fmt"
-	"github.com/gorilla/websocket"
-	"net/http"
+    "fmt"
+    "github.com/gorilla/websocket"
+    "net/http"
+    "sync"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
 var (
-	waitingRoom = make(map[*websocket.Conn]string)
-	broadcast   = make(chan Message)
-	ClientName  string
-	playerCount = 0
-	maxWaitTime = 20
+    upgrader    = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+    waitingRoom = make(map[*websocket.Conn]string)
+    broadcast   = make(chan Message)
+    playerCount = 0
+    maxWaitTime = 20
+    mu          sync.Mutex
 )
 
 type Message struct {
-	Type        string `json:"type"`
-	Name        string `json:"name"`
-	Content     string `json:"content"`
-	Action      string `json:"action"`
-	Seconds     int    `json:"seconds,omitempty"`
-	PlayerCount int    `json:"playerCount,omitempty"`
+    Type        string `json:"type"`
+    Name        string `json:"name"`
+    Content     string `json:"content"`
+    Action      string `json:"action"`
+    Seconds     int    `json:"seconds,omitempty"`
+    PlayerCount int    `json:"playerCount,omitempty"`
 }
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("Error upgrading connection:", err)
-		return
-	}
-	defer conn.Close()
-	for {
-		waitingRoom[conn] = ""
-		fmt.Println("Client connected")
-		var msg Message
-		err := conn.ReadJSON(&msg)
-		if err != nil {
-			fmt.Println("Error reading message:", err)
-			if waitingRoom[conn] != "" {
-				broadcast <- Message{Type: "playerDisconnected", Name: waitingRoom[conn]}
-				delete(waitingRoom, conn)
-				playerCount--
-			}
-			break
-		}
+    conn, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        fmt.Println("Error upgrading connection:", err)
+        return
+    }
+    defer conn.Close()
 
-		if msg.Type == "join" {
-			if waitingRoom[conn] == "" {
-				// fmt.Printf("%s connected\n", msg.Name)
-				waitingRoom[conn] = msg.Name
-				playerCount++
-				broadcast <- Message{Type: "playerJoined", Name: msg.Name, Seconds: maxWaitTime, PlayerCount: playerCount}
-			}
-		} else if msg.Type == "logout" {
-			if waitingRoom[conn] != "" {
-				broadcast <- Message{Type: "playerDisconnected", Name: waitingRoom[conn]}
-				delete(waitingRoom, conn)
-				playerCount--
-			}
-			break
-		} else {
-			broadcast <- msg
-		}
-	}
+    fmt.Println("Client connected")
+
+    for {
+        var msg Message
+        err := conn.ReadJSON(&msg)
+        if err != nil {
+            fmt.Println("Error reading message:", err)
+            handleDisconnection(conn)
+            break
+        }
+
+        switch msg.Type {
+        case "join":
+            handleJoin(conn, msg.Name)
+        case "logout":
+            handleLogout(conn)
+            break
+        default:
+            broadcast <- msg
+        }
+    }
 }
+
+func handleJoin(conn *websocket.Conn, name string) {
+    mu.Lock()
+    defer mu.Unlock()
+
+    if _, exists := waitingRoom[conn]; !exists {
+        fmt.Printf("%s connected\n", name)
+        waitingRoom[conn] = name
+        playerCount++
+        broadcast <- Message{Type: "playerJoined", Name: name, Seconds: maxWaitTime, PlayerCount: playerCount}
+    }
+}
+
+func handleLogout(conn *websocket.Conn) {
+    mu.Lock()
+    defer mu.Unlock()
+
+    if name, exists := waitingRoom[conn]; exists {
+        broadcast <- Message{Type: "playerDisconnected", Name: name}
+        delete(waitingRoom, conn)
+        playerCount--
+    }
+}
+
+func handleDisconnection(conn *websocket.Conn) {
+    mu.Lock()
+    defer mu.Unlock()
+
+    if name, exists := waitingRoom[conn]; exists {
+        broadcast <- Message{Type: "playerDisconnected", Name: name}
+        delete(waitingRoom, conn)
+        playerCount--
+    }
+}
+
 func handleMessages() {
-	for {
-		msg := <-broadcast
-		fmt.Println("msg", msg)
-		for client, name := range waitingRoom {
-			if name != msg.Name {
-				err := client.WriteJSON(msg)
-				if err != nil {
-					fmt.Println("Error sending message:", err)
-					broadcast <- Message{Type: "playerDisconnected", Name: name}
-					client.Close()
-					delete(waitingRoom, client)
-				}
-			}
-		}
-	}
+    for msg := range broadcast {
+        mu.Lock()
+        for client := range waitingRoom {
+            if err := client.WriteJSON(msg); err != nil {
+                fmt.Println("Error sending message to client:", err)
+                handleDisconnection(client)
+            } else {
+                fmt.Println("Message sent to client:", msg)
+            }
+        }
+        mu.Unlock()
+    }
 }
+
 func main() {
-	http.HandleFunc("/", handleConnection)
-	go handleMessages()
-	fmt.Println("Server started at ws://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+    http.HandleFunc("/", handleConnection)
+
+    go handleMessages()
+
+    fmt.Println("Server started at ws://localhost:8080")
+    if err := http.ListenAndServe(":8080", nil); err != nil {
+        fmt.Println("Error starting server:", err)
+    }
 }

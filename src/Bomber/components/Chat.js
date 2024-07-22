@@ -1,7 +1,6 @@
 import VDOM from '../../core/dom.mjs';
 import { playerName } from './PlayerForm.js';
-
-const ws = new WebSocket('ws://localhost:8080/');
+import { ws } from '../app.js';
 
 export function createChat() {
     return VDOM.createElement('div', { id: 'chat-container' },

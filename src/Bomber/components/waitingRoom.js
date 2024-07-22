@@ -20,6 +20,7 @@ export function createCountdown(initialSeconds, playerCount) {
                 return `Game starts in ${remainingTime} seconds...`;
             }
         } else if (countdownStarted20) {
+            console.log("remainingTime1", remainingTime);
             return `${remainingTime} seconds remaining, waiting for players... ${globalPlayerCount}/4`;
         } else {
             return `Waiting for players... ${globalPlayerCount}/4`;
@@ -28,21 +29,27 @@ export function createCountdown(initialSeconds, playerCount) {
 
     const intervalId = setInterval(() => {
         if (globalPlayerCount >= 2 && !countdownStarted20) {
+            console.log("remainingTime2", remainingTime);
             countdownStarted20 = true;
             remainingTime = 20;
         }
 
-        if (countdownStarted20 && globalPlayerCount >= 3 && !countdownStarted10) {
+        if ((countdownStarted20 && globalPlayerCount == 4 && !countdownStarted10)
+            || countdownStarted20 && globalPlayerCount >= 2 && remainingTime == 0) {
+            console.log("remainingTime3", remainingTime);
             countdownStarted10 = true;
+            countdownStarted20 = false;
             remainingTime = 10;
         }
 
-        if (countdownStarted20 || countdownStarted10) {
-            remainingTime--;
+        if (countdownStarted10 || countdownStarted20) {
+            console.log("remainingTime4", remainingTime);
+            if (remainingTime > 0) {
+                remainingTime--;
+            }
         }
 
-        const updatedContent = renderCountdown();
-        countdownElement.innerHTML = updatedContent;
+        countdownElement.innerHTML = renderCountdown();
     }, 1000);
 
     return countdownElement;

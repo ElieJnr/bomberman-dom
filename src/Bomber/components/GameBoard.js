@@ -3,8 +3,7 @@ import { playerName } from './PlayerForm.js';
 import { createChat } from './Chat.js';
 import { HomeComponent } from './Home.js';
 import { MountComponent } from '../app.js';
-
-const ws = new WebSocket('ws://localhost:8080/');
+import { ws } from '../app.js';
 
 export function createGame() {
     document.addEventListener('keydown', handleKeyDown);

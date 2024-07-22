@@ -1,9 +1,5 @@
 import VDOM from '../../core/dom.mjs';
-import { createChat } from './Chat.js';
-import { createGame } from './GameBoard.js';
-import { MountComponent, seconds, showGameNotStarting } from '../app.js';
-
-const ws = new WebSocket('ws://localhost:8080');
+import { ws } from '../app.js';
 
 export let playerName = "";
 
@@ -23,9 +19,6 @@ function handleSubmit(event) {
     
     if (playerName) {
         ws.send(JSON.stringify({ type: 'join', name: playerName }));
-        // MountComponent('#app', createGame, createChat);
-        console.log(playerName);
-        showGameNotStarting(seconds, playerName)
     } else {
         alert('Please enter a valid name.');
     }
