@@ -20,30 +20,28 @@ export function createCountdown(initialSeconds, playerCount) {
                 return `Game starts in ${remainingTime} seconds...`;
             }
         } else if (countdownStarted20) {
-            console.log("remainingTime1", remainingTime);
+            console.log("remainingTime0", remainingTime);
             return `${remainingTime} seconds remaining, waiting for players... ${globalPlayerCount}/4`;
-        } else {
+        } else if (!countdownStarted20 && !countdownStarted10){
+            console.log("remainingTime1", remainingTime);
             return `Waiting for players... ${globalPlayerCount}/4`;
         }
     }
 
     const intervalId = setInterval(() => {
         if (globalPlayerCount >= 2 && !countdownStarted20) {
-            console.log("remainingTime2", remainingTime);
             countdownStarted20 = true;
             remainingTime = 20;
         }
 
-        if ((countdownStarted20 && globalPlayerCount == 4 && !countdownStarted10)
-            || countdownStarted20 && globalPlayerCount >= 2 && remainingTime == 0) {
-            console.log("remainingTime3", remainingTime);
+        if ((countdownStarted20 && globalPlayerCount === 4 && !countdownStarted10) ||
+            (countdownStarted20 && globalPlayerCount >= 2 && remainingTime <= 0)) {
             countdownStarted10 = true;
             countdownStarted20 = false;
             remainingTime = 10;
         }
 
         if (countdownStarted10 || countdownStarted20) {
-            console.log("remainingTime4", remainingTime);
             if (remainingTime > 0) {
                 remainingTime--;
             }

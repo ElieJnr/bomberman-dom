@@ -18,7 +18,6 @@ ws.onopen = () => {
 ws.onmessage = (event) => {
     console.log('Received message:', event.data);
     const data = JSON.parse(event.data);
-    console.log('data:', data);
 
     if (data.type === 'message') {
         displayMessage(`${data.name}: ${data.content}`, data.name === playerName);
@@ -33,14 +32,6 @@ ws.onmessage = (event) => {
         displayMessage(`${data.name} has left the game.\n`, false);
         removePlayer(data.name);
     }
-};
-
-ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
-};
-
-ws.onclose = (event) => {
-    console.log('WebSocket connection closed:', event);
 };
 
 export function startGame() {
