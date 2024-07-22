@@ -87,13 +87,13 @@ class GameRenderer {
     constructor(gameBody, eventHandler) {
         this.gameBody = gameBody;
         this.eventHandler = eventHandler;
-        this.stateManager = new StateManager({ firstDiv: null});
+        this.stateManager = new StateManager({ mapDiv: null});
     }
 
     createDivs() {
-        const firstDiv = this.createDiv('firstdiv', '100%', '95%');
-        this.gameBody.append(firstDiv.render());
-        this.stateManager.setState({ firstDiv});
+        const mapDiv = this.createDiv('mapDiv', '100%', '95%');
+        this.gameBody.append(mapDiv.render());
+        this.stateManager.setState({ mapDiv});
     }
 
     createDiv(id, width, height) {
@@ -111,7 +111,7 @@ class GameRenderer {
         const offsetX = (gameBodyWidth - gridWidth) / 2;
         const offsetY = (gameBodyHeight - gridHeight) / 2;
 
-        this.setupFirstDiv(gridWidth, gridHeight, offsetX, offsetY);
+        this.setupmapDiv(gridWidth, gridHeight, offsetX, offsetY);
 
         const fragment = VDOM.createElement('fragment');
         for (let row = 0; row < tileMap.rows; row++) {
@@ -122,12 +122,12 @@ class GameRenderer {
                 }
             }
         }
-        this.stateManager.getState().firstDiv.children.push(fragment);
-        this.gameBody.appendChild(this.stateManager.getState().firstDiv.render());
+        this.stateManager.getState().mapDiv.children.push(fragment);
+        this.gameBody.appendChild(this.stateManager.getState().mapDiv.render());
     }
 
-    setupFirstDiv(width, height, left, top) {
-        Object.assign(this.stateManager.getState().firstDiv.attrs.style, {
+    setupmapDiv(width, height, left, top) {
+        Object.assign(this.stateManager.getState().mapDiv.attrs.style, {
             position: 'relative',
             width: `${width}px`,
             height: `${height}px`,
@@ -202,7 +202,7 @@ class GameRenderer {
 //     animation-fill-mode: forwards;
 // }
 
-// #firstdiv {
+// #mapDiv {
 //     position: absolute;
 //     overflow: hidden;
 // }

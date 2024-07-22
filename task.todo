@@ -61,7 +61,7 @@ BOMBERMAN-DOM:
 
     #Équipe Serveur WebSocket:
     - Responsabilités : Mise en place du serveur WebSocket pour la communication en temps réel entre les joueurs.
-    - Membres : 1 personne @emalo?
+    - Membres : 1 personne @jgoudiab
     Tâches :
         ☐ Développement du serveur WebSocket pour gérer les connexions des joueurs.
         ☐ Implémentation du chat en jeu pour permettre la communication entre les joueurs.
@@ -70,10 +70,10 @@ BOMBERMAN-DOM:
 
     #Équipe Génération de Carte et Blocs:
     - Responsabilités : Création de cartes de jeu aléatoires et gestion des différents types de blocs.
-    - Membres : 1 personne @babacan
+    - Membres : 1 personne @babacandiaye
     Tâches :
-        ☐ Génération aléatoire de la carte de jeu avec des obstacles et des zones libres pour les joueurs.
-        ☐ Placement des blocs destructibles et non destructibles selon la configuration de la carte.
+        ✔ Génération aléatoire de la carte de jeu avec des obstacles et des zones libres pour les joueurs. @done(24-07-22 10:53)
+        ✔ Placement des blocs destructibles et non destructibles selon la configuration de la carte. @done(24-07-22 10:53)
         ☐ Intégration des power-ups aléatoires dans les blocs destructibles.
 
     Bonus:
