@@ -1,5 +1,4 @@
 import VDOM from '../../core/dom.mjs';
-import { UnmountComponent } from '../app.js';
 
 const playerElements = {};
 const playerPositions = {};
@@ -78,7 +77,8 @@ export function removePlayer(playerName) {
     if (playerVDOM) {
         const playerElement = playerVDOM.render();
 
-        UnmountComponent('#game-content', playerElement);
+        // UnmountComponent('#game-content', playerElement);
+        // display none le player 
         
         delete playerElements[playerName];
         delete playerPositions[playerName];

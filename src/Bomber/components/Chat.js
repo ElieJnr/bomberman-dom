@@ -23,6 +23,7 @@ function sendMessage(event) {
 }
 
 export function displayMessage(message, isSent = false) {
+    console.log('message to append', message);
     const messagesContainer = document.getElementById('messages');
     const messageElement = VDOM.createElement('div', {
         class: `message ${isSent ? 'sent' : 'received'}`

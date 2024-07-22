@@ -2,7 +2,7 @@ import VDOM from '../../core/dom.mjs';
 import { playerName } from './PlayerForm.js';
 import { createChat } from './Chat.js';
 import { HomeComponent } from './Home.js';
-import { UnmountComponent, MountComponent } from '../app.js';
+import { MountComponent } from '../app.js';
 
 const ws = new WebSocket('ws://localhost:8080/');
 
@@ -19,10 +19,9 @@ export function createGame() {
 function handleLogout() {
     ws.send(JSON.stringify({ type: 'logout', name: playerName }));
 
-    UnmountComponent('#app',createGame, createChat);
-    MountComponent('#app',HomeComponent);
+    MountComponent('#app', HomeComponent);
     window.location.reload()
-    
+
     ws.close();
 }
 

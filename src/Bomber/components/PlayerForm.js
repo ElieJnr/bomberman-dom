@@ -1,7 +1,7 @@
 import VDOM from '../../core/dom.mjs';
 import { createChat } from './Chat.js';
 import { createGame } from './GameBoard.js';
-import { UnmountComponent , MountComponent} from '../app.js';
+import { MountComponent, seconds, showGameNotStarting } from '../app.js';
 
 const ws = new WebSocket('ws://localhost:8080');
 
@@ -20,12 +20,12 @@ export function createForm() {
 function handleSubmit(event) {
     event.preventDefault();
     playerName = document.getElementById('playerName').value.trim();
-    console.log("playerName", playerName);
-
+    
     if (playerName) {
         ws.send(JSON.stringify({ type: 'join', name: playerName }));
-        // UnmountComponent('#app', createForm);
-        MountComponent('#app', createGame, createChat);
+        // MountComponent('#app', createGame, createChat);
+        console.log(playerName);
+        showGameNotStarting(seconds, playerName)
     } else {
         alert('Please enter a valid name.');
     }
