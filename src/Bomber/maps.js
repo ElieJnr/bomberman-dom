@@ -13,8 +13,8 @@ const tileMap = {
         POWERUP: 3
     },
     colors: {
-        WALL: "white",
-        BRICK: "gray"
+        WALL: "black",
+        BRICK: "white"
     },
     gameConfig: {
         BRICK_COUNT: 60,
@@ -168,12 +168,14 @@ class GameRenderer {
     }
 }
 
-// document.addEventListener("DOMContentLoaded", () => {
-//     const gameBody = document.getElementById("gameBody");
-//     const eventHandler = new EventHandler();
-//     const gameRenderer = new GameRenderer(gameBody, eventHandler);
-//     gameRenderer.initialize();
-// });
+export function insertMap() {
+    const gameBody = document.getElementById("maps");
+    const eventHandler = new EventHandler();
+    const gameRenderer = new GameRenderer(gameBody, eventHandler);
+    gameRenderer.initialize();
+    
+}
+
 
 
 // CSS aléatoire pour tester
@@ -193,7 +195,7 @@ class GameRenderer {
 //     font-family: 'sarpanch';
 // }
 
-// #gameBody {
+/// #gameBody {
 //     position: relative;
 //     width: 70%;
 //     height: 90%;

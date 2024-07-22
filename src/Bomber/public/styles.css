@@ -1,14 +1,16 @@
-body, html {
+body,
+html {
     height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
 }
+
 #app {
     display: flex;
-    flex-direction: row; 
-    height: 100vh; 
-    width: 100vw; 
+    flex-direction: row;
+    height: 100vh;
+    width: 100vw;
 }
 
 #home-container {
@@ -21,10 +23,10 @@ body, html {
 
 /* +======================FORMULAIRE D'ACCUEIL======================+ */
 #form-container {
-    position: absolute; 
+    position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); 
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -32,7 +34,7 @@ body, html {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    z-index: 2; 
+    z-index: 2;
 }
 
 #nameForm {
@@ -60,7 +62,7 @@ body, html {
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 #nameForm button {
@@ -80,48 +82,41 @@ body, html {
 /* ======================GAME CONTAINER====================== */
 #game-content {
     flex: 3;
-    display: flex; 
+    display: flex;
     flex-direction: column;
     background-color: #f0f0f0;
 }
 
-#maps {
-    flex: 5; 
-    background-color: #ffffff; 
-    border-top: 2px solid #3b3a3a; 
-    position: relative; 
-}
-
 #power-ups-container {
     flex: 0.2;
-    background-color: #e0e0e0; 
-    border: 1px solid #ccc; 
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
     display: flex;
     flex-direction: column;
-    padding: 10px; 
+    padding: 10px;
 }
 
 
 #logout-button {
-    align-self: flex-end; 
-    margin-top: auto; 
-    margin-left: auto; 
+    align-self: flex-end;
+    margin-top: auto;
+    margin-left: auto;
     padding: 10px;
     border: none;
-    background-color: #ff4d4d; 
+    background-color: #ff4d4d;
     color: white;
     cursor: pointer;
 }
 
 #logout-button:hover {
-    background-color: #e60000; 
+    background-color: #e60000;
 }
 
 .player {
     width: 32px;
     height: 32px;
     position: absolute;
-    background-color: #ff0000; 
+    background-color: #ff0000;
     border-radius: 50%;
 }
 
@@ -129,14 +124,14 @@ body, html {
     width: 16px;
     height: 16px;
     position: absolute;
-    background-color: #000000; 
+    background-color: #000000;
     border-radius: 50%;
 }
 
 /* ======================CHAT CONTAINER====================== */
 #chat-container {
     flex: 1;
-    display: flex; 
+    display: flex;
     flex-direction: column;
     background-color: #f5f5f5;
     border-left: 1px solid #ccc;
@@ -178,7 +173,7 @@ body, html {
     background-color: #fff;
     border-top: 1px solid #ddd;
     padding: 10px;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 #chatMessage {
@@ -186,8 +181,8 @@ body, html {
     margin-right: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    width: calc(100% - 120px); 
-    box-sizing: border-box; 
+    width: calc(100% - 120px);
+    box-sizing: border-box;
 }
 
 #chatForm button {
@@ -238,4 +233,47 @@ button:hover {
 #countdown-container.waiting {
     background-color: #ffc107;
     color: #000000;
+}
+
+/* ++++++++++++++++++++++++++  MAPS  +++++++++++++++++++++++++++++ */
+#maps {
+    flex: 5;
+    background-color: #ffffff;
+    border-top: 2px solid #3b3a3a;
+    position: relative;
+    animation-name: changeGameBody;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+
+
+/* #gameBody {
+    position: relative;
+    width: 70%;
+    height: 90%;
+    animation-name: changeGameBody;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+} */
+
+#mapDiv {
+    position: absolute;
+    overflow: hidden;
+}
+
+.setBrick {
+    position: absolute;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+@keyframes changeGameBody {
+    0% {
+        background-color: black;
+    }
+
+    100% {
+        background-color: rgba(82, 99, 97, 0.2);
+    }
 }

@@ -5,6 +5,7 @@ import { playerName } from './components/PlayerForm.js';
 import { removePlayer } from './components/Player.js';
 import { createGame } from './components/GameBoard.js';
 import { createCountdown } from './components/waitingRoom.js';
+import { insertMap } from './maps.js';
 
 export let seconds
 export let playerCount
@@ -36,6 +37,7 @@ ws.onmessage = (event) => {
 
 export function startGame() {
     MountComponent('#app', createGame, createChat);
+    insertMap()
 }
 
 export function showGameNotStarting(seconds, playerCount) {
