@@ -35,13 +35,13 @@ const tileMap = {
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
-    
+
     getTile(col, row) {
         return this.map[row][col];
     },
-    
+
     getColor(tileType) {
-        switch(tileType) {
+        switch (tileType) {
             case this.tileTypes.WALL:
                 return this.colors.WALL;
             case this.tileTypes.BRICK:
@@ -50,7 +50,7 @@ const tileMap = {
                 return "transparent";
         }
     },
-    
+
     placeRandomBricks(count) {
         let placed = 0;
         while (placed < count) {
@@ -70,7 +70,7 @@ const tileMap = {
             }
         }
     },
-    
+
     calculateTileSize(gameBodyWidth, gameBodyHeight) {
         const gameBodyAspectRatio = gameBodyWidth / gameBodyHeight;
         const mapAspectRatio = this.columns / this.rows;
@@ -87,13 +87,13 @@ class GameRenderer {
     constructor(gameBody, eventHandler) {
         this.gameBody = gameBody;
         this.eventHandler = eventHandler;
-        this.stateManager = new StateManager({ mapDiv: null});
+        this.stateManager = new StateManager({ mapDiv: null });
     }
 
     createDivs() {
         const mapDiv = this.createDiv('mapDiv', '100%', '95%');
         this.gameBody.append(mapDiv.render());
-        this.stateManager.setState({ mapDiv});
+        this.stateManager.setState({ mapDiv });
     }
 
     createDiv(id, width, height) {
@@ -103,9 +103,9 @@ class GameRenderer {
     renderMap() {
         const gameBodyWidth = this.gameBody.offsetWidth;
         const gameBodyHeight = this.gameBody.offsetHeight * (tileMap.gameConfig.MAIN_DIV_HEIGHT_PERCENTAGE / 100);
-        
+
         tileMap.calculateTileSize(gameBodyWidth, gameBodyHeight);
-        
+
         const gridWidth = tileMap.tileSize * tileMap.columns;
         const gridHeight = tileMap.tileSize * tileMap.rows;
         const offsetX = (gameBodyWidth - gridWidth) / 2;
@@ -122,8 +122,8 @@ class GameRenderer {
                 }
             }
         }
-        this.stateManager.getState().mapDiv.children.push(fragment);
-        this.gameBody.appendChild(this.stateManager.getState().mapDiv.render());
+        this.stateManager.getState().mapDiv.children = [fragment];
+        this.gameBody.querySelector('#mapDiv').replaceWith(this.stateManager.getState().mapDiv.render());
     }
 
     setupmapDiv(width, height, left, top) {
@@ -173,54 +173,4 @@ export function insertMap() {
     const eventHandler = new EventHandler();
     const gameRenderer = new GameRenderer(gameBody, eventHandler);
     gameRenderer.initialize();
-    
 }
-
-
-
-// CSS aléatoire pour tester
-// * {
-//     padding: 0;
-//     margin: 0;
-//     box-sizing: border-box;
-// }
-
-// body {
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//     background-color: black;
-//     height: 100vh;
-//     overflow: hidden;
-//     font-family: 'sarpanch';
-// }
-
-/// #gameBody {
-//     position: relative;
-//     width: 70%;
-//     height: 90%;
-//     animation-name: changeGameBody;
-//     animation-duration: 1s;
-//     animation-fill-mode: forwards;
-// }
-
-// #mapDiv {
-//     position: absolute;
-//     overflow: hidden;
-// }
-
-// .setBrick {
-//     position: absolute;
-//     background-size: cover;
-//     background-repeat: no-repeat;
-//     background-position: center;
-// }
-
-// @keyframes changeGameBody {
-//     0% {
-//         background-color: black;
-//     }
-//     100% {
-//         background-color: rgba(82, 99, 97, 0.2);
-//     }
-// }
