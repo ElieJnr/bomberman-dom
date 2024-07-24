@@ -1,7 +1,11 @@
 import VDOM from '../core/dom.mjs';
 import EventHandler from '../core/events.js';
 import StateManager from '../core/state.js';
+export {
+    mapWidth
+}
 
+var mapWidth
 const tileMap = {
     columns: 21,
     rows: 13,
@@ -77,8 +81,10 @@ const tileMap = {
 
         if (mapAspectRatio > gameBodyAspectRatio) {
             this.tileSize = gameBodyWidth / this.columns;
+            mapWidth = this.tileSize
         } else {
             this.tileSize = gameBodyHeight / this.rows;
+            mapWidth = this.tileSize   
         }
     }
 };
@@ -146,7 +152,7 @@ class GameRenderer {
                 className = 'border-wall';
             } else {
                 // Piliers intérieurs
-                className = 'pillar-border';
+                className= 'pillar-border';
             }
         } else if (tileType === tileMap.tileTypes.BRICK) {
             // Briques cassables
@@ -154,7 +160,7 @@ class GameRenderer {
         }
     
         return VDOM.createElement('div', {
-            className: className,
+            class: className,
             id: `${className}-${row}-${col}`,
             style: {
                 backgroundColor: color,
