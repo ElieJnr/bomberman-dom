@@ -22,7 +22,7 @@ const tileMap = {
     },
     map: [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
@@ -138,9 +138,24 @@ class GameRenderer {
 
     createTile(tileType, col, row) {
         const color = tileMap.getColor(tileType);
+        let className = '';
+        
+        if (tileType === tileMap.tileTypes.WALL) {
+            // Briques de bordure 
+            if (row === 0 || row === tileMap.rows - 1 || col === 0 || col === tileMap.columns - 1) {
+                className = 'border-wall';
+            } else {
+                // Piliers intérieurs
+                className = 'pillar-border';
+            }
+        } else if (tileType === tileMap.tileTypes.BRICK) {
+            // Briques cassables
+            className = 'brittle-brick';
+        }
+    
         return VDOM.createElement('div', {
-            className: 'tile',
-            id: `tile-${row}-${col}`,
+            className: className,
+            id: `${className}-${row}-${col}`,
             style: {
                 backgroundColor: color,
                 position: 'absolute',
@@ -161,7 +176,7 @@ class GameRenderer {
     }
 
     initialize() {
-        tileMap.placeRandomBricks(tileMap.gameConfig.BRICK_COUNT);
+        // tileMap.placeRandomBricks(tileMap.gameConfig.BRICK_COUNT);
         this.createDivs();
         this.renderMap();
         this.attachEventListeners();
