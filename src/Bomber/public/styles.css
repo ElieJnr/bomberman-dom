@@ -117,7 +117,7 @@ html {
     height: 32px;
     position: absolute;
     background-color: #ff0000;
-    border-radius: 50%;
+    /*border-radius: 50%;*/
 }
 
 .bomb {

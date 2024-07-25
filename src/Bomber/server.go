@@ -12,7 +12,7 @@ var (
     waitingRoom = make(map[*websocket.Conn]string)
     broadcast   = make(chan Message)
     playerCount = 0
-    maxWaitTime = 20
+    maxWaitTime = 20 
     mu          sync.Mutex
 )
 
