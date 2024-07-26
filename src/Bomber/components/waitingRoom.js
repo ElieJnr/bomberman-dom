@@ -1,4 +1,6 @@
 import { startGame } from '../app.js';
+import VDOM from '../../core/dom.mjs';
+import { playerName } from './PlayerForm.js';
 
 export function createCountdown(initialSeconds, playerCount) {
     let remainingTime = initialSeconds;
@@ -9,7 +11,7 @@ export function createCountdown(initialSeconds, playerCount) {
     const countdownElement = document.createElement('div');
     countdownElement.id = 'countdown-container';
     countdownElement.className = 'waiting';
-    document.body.appendChild(countdownElement); 
+    document.body.appendChild(countdownElement);
 
     function countDown10() {
         if (remainingTime <= 0) {
@@ -36,8 +38,8 @@ export function createCountdown(initialSeconds, playerCount) {
         if (globalPlayerCount >= 2 && !countdownStarted20 && !countdownStarted10) {
             console.log("Starting 20-second countdown");
             countdownStarted20 = true;
-            remainingTime = 1;
-            updateCountdown(); 
+            remainingTime = 20;
+            updateCountdown();
             return;
         }
 
@@ -45,18 +47,18 @@ export function createCountdown(initialSeconds, playerCount) {
             console.log("Starting 10-second countdown");
             countdownStarted10 = true;
             countdownStarted20 = false;
-            remainingTime = 1;
-            updateCountdown(); 
+            remainingTime = 10;
+            updateCountdown();
             return;
         }
 
         if (countdownStarted10 || countdownStarted20) {
-            if (remainingTime > 0 ) {
+            if (remainingTime > 0) {
                 remainingTime--;
             } else if (countdownStarted10) {
-                clearInterval(intervalId); 
-                startGame(); 
-                 
+                clearInterval(intervalId);
+                startGame();
+
                 return;
             }
             updateCountdown();
@@ -66,4 +68,29 @@ export function createCountdown(initialSeconds, playerCount) {
     updateCountdown();
 
     return countdownElement;
+}
+
+
+export function waitingRoom() {
+    let logo2 = VDOM.createElement("div", { id: "logoContainer" }, VDOM.createElement("img", { src: "../assets/logo2.svg" }))
+
+    let timer = VDOM.createElement("div", { id: "timer" }, "Starting in: 00:30 ")
+
+
+    let allPlayer=VDOM.createElement("div", { id:"allplayer"},setPlayerImgAndName("John Doe", "player1", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player2", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player3", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player4", "../assets/player.svg"))
+
+    let qtoquit = VDOM.createElement("img",{id:"qtoquit", src:"../assets/qtoquit.svg"})
+
+    VDOM.appendChildToElementById("app", logo2)
+
+    VDOM.appendChildToElementById("app", timer)
+
+    VDOM.appendChildToElementById("app", allPlayer)
+
+    VDOM.appendChildToElementById("app",qtoquit)
+
+}
+
+function setPlayerImgAndName(name, playerNbr, src) {
+    return VDOM.createElement("div", { id: playerNbr, class: "playerContainer" }, VDOM.createElement("div", { class: "playerImg" }, VDOM.createElement("img", { id: `${playerNbr}` + "Img", src: src })), VDOM.createElement("div", { id: `${playerNbr}` +"Name" , class:"NameOfPlayer" }, name))
 }

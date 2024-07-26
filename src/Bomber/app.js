@@ -1,11 +1,14 @@
 import { createChat, displayMessage } from './components/Chat.js';
 import { updatePlayerAction } from './components/Player.js';
-import { HomeComponent } from './components/Home.js';
+// import { HomeComponent } from './components/Home.js';
 import { playerName } from './components/PlayerForm.js';
 import { removePlayer } from './components/Player.js';
 import { createGame } from './components/GameBoard.js';
 import { createCountdown } from './components/waitingRoom.js';
 import { insertMap } from './maps.js';
+import { initGame } from './initGame.js';
+import { waitingRoom } from './components/waitingRoom.js';
+
 
 export let seconds
 export let playerCount
@@ -13,7 +16,9 @@ export const ws = new WebSocket('ws://localhost:8080');
 
 ws.onopen = () => {
     console.log('WebSocket connection established');
-    MountComponent('#app', HomeComponent)
+    initGame()
+
+    // MountComponent('#app', HomeComponent)
 };
 
 ws.onmessage = (event) => {
@@ -25,10 +30,12 @@ ws.onmessage = (event) => {
     } else if (data.type === 'action') {
         updatePlayerAction(data.name, data.action );
     } else if (data.type === 'playerJoined') {
-        showGameNotStarting(data.seconds, data.playerCount);
-        displayMessage(`${data.name} has joined the game.\n`, false);
-        seconds = data.seconds
-        playerCount = data.playerCount
+        waitingRoom()
+
+        // showGameNotStarting(data.seconds, data.playerCount);
+        // displayMessage(`${data.name} has joined the game.\n`, false);
+        // seconds = data.seconds
+        // playerCount = data.playerCount
     } else if (data.type === 'playerDisconnected') {
         displayMessage(`${data.name} has left the game.\n`, false);
         removePlayer(data.name);

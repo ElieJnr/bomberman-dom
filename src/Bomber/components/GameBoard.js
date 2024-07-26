@@ -1,7 +1,7 @@
 import VDOM from '../../core/dom.mjs';
 import { playerName } from './PlayerForm.js';
 import { createChat } from './Chat.js';
-import { HomeComponent } from './Home.js';
+// import { HomeComponent } from './Home.js';
 import { MountComponent } from '../app.js';
 import { ws } from '../app.js';
 
