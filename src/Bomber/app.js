@@ -4,19 +4,19 @@ import { updatePlayerAction } from './components/Player.js';
 import { playerName } from './components/PlayerForm.js';
 import { removePlayer } from './components/Player.js';
 import { createGame } from './components/GameBoard.js';
-import { createCountdown } from './components/waitingRoom.js';
+// import { createCountdown } from './components/waitingRoom.js';
 import { insertMap } from './maps.js';
 import { initGame } from './initGame.js';
 import { waitingRoom } from './components/waitingRoom.js';
 
-
 export let seconds
 export let playerCount
+export let timerOn = false
 export const ws = new WebSocket('ws://localhost:8080');
 
 ws.onopen = () => {
     console.log('WebSocket connection established');
-    initGame()
+    initGame();
 
     // MountComponent('#app', HomeComponent)
 };
@@ -28,29 +28,59 @@ ws.onmessage = (event) => {
     if (data.type === 'message') {
         displayMessage(`${data.name}: ${data.content}`, data.name === playerName);
     } else if (data.type === 'action') {
-        updatePlayerAction(data.name, data.action );
+        updatePlayerAction(data.name, data.action);
     } else if (data.type === 'playerJoined') {
-        waitingRoom()
+
+        if (!document.getElementById("allplayer")) {
+            waitingRoom();
+        }
+
 
         // showGameNotStarting(data.seconds, data.playerCount);
         // displayMessage(`${data.name} has joined the game.\n`, false);
-        // seconds = data.seconds
-        // playerCount = data.playerCount
+        seconds = data.seconds;
+        playerCount = data.playerCount;
+
+        if (playerCount >= 2) {
+            let timer = document.getElementById("timer")
+            createCountdown(seconds, timer, "searching for other players...", () => (console.log("hello world")))
+        }
+
+
+
+
+
     } else if (data.type === 'playerDisconnected') {
         displayMessage(`${data.name} has left the game.\n`, false);
         removePlayer(data.name);
+    } else if (data.type === 'startPreparation') {
+        console.log("je suis la");
+        // displayMessage('Game will start in 10 seconds...', false);
+
+        let timer = document.getElementById("timer")
+        let seconds=10
+            createCountdown(seconds, timer, " seconds left before start", () => (console.log("hello world")))
+
+        // Additional logic for 10-second countdown can be added here
+    } else if (data.type === 'startGame') {
+        startGame();
+    } else if (data.type === 'notEnoughPlayers') {
+        displayMessage('Not enough players to start the game.', false);
+    } else if (data.type === 'gameStarted') {
+        alert(data.content);
+        ws.close();
     }
 };
 
 export function startGame() {
     MountComponent('#app', createGame, createChat);
-    insertMap()
+    insertMap();
 }
 
-export function showGameNotStarting(seconds, playerCount) {
-    MountComponent('#app', createGame, createChat);
-    MountComponent('#maps', createCountdown(seconds, playerCount));
-}
+// export function showGameNotStarting(seconds, playerCount) {
+//     MountComponent('#app', createGame, createChat);
+//     MountComponent('#maps', createCountdown(seconds, playerCount));
+// }
 
 export function MountComponent(target, ...components) {
     const container = document.querySelector(target);
@@ -81,4 +111,27 @@ export function MountComponent(target, ...components) {
             container.appendChild(element);
         }
     });
+}
+
+function createCountdown(seconds, displayElement, message, onComplete,) {
+    let remainingSeconds = seconds;
+
+    const updateDisplay = () => {
+        displayElement.textContent = "00:" + remainingSeconds.toString() + " " + message;
+    };
+
+    const countdown = setInterval(() => {
+        if (remainingSeconds > 0) {
+            remainingSeconds--;
+            updateDisplay();
+        } else {
+            clearInterval(countdown);
+            if (onComplete) {
+                onComplete();
+            }
+        }
+    }, 1000);
+
+    // Initial display
+    updateDisplay();
 }

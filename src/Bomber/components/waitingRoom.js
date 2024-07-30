@@ -2,79 +2,79 @@ import { startGame } from '../app.js';
 import VDOM from '../../core/dom.mjs';
 import { playerName } from './PlayerForm.js';
 
-export function createCountdown(initialSeconds, playerCount) {
-    let remainingTime = initialSeconds;
-    let countdownStarted20 = false;
-    let countdownStarted10 = false;
-    let globalPlayerCount = playerCount;
+// export function createCountdown(initialSeconds, playerCount) {
+//     let remainingTime = initialSeconds;
+//     let countdownStarted20 = false;
+//     let countdownStarted10 = false;
+//     let globalPlayerCount = playerCount;
 
-    const countdownElement = document.createElement('div');
-    countdownElement.id = 'countdown-container';
-    countdownElement.className = 'waiting';
-    document.body.appendChild(countdownElement);
+//     const countdownElement = document.createElement('div');
+//     countdownElement.id = 'countdown-container';
+//     countdownElement.className = 'waiting';
+//     document.body.appendChild(countdownElement);
 
-    function countDown10() {
-        if (remainingTime <= 0) {
-            return 'Game starting!';
-        } else {
-            return `Game starts in ${remainingTime} seconds...`;
-        }
-    }
+//     function countDown10() {
+//         if (remainingTime <= 0) {
+//             return 'Game starting!';
+//         } else {
+//             return `Game starts in ${remainingTime} seconds...`;
+//         }
+//     }
 
-    function countDown20() {
-        return `${remainingTime} seconds remaining, waiting for players... ${globalPlayerCount}/4`;
-    }
+//     function countDown20() {
+//         return `${remainingTime} seconds remaining, waiting for players... ${globalPlayerCount}/4`;
+//     }
 
-    function updateCountdown() {
-        if (countdownStarted10) {
-            countdownElement.className = 'game-starting';
-            countdownElement.innerHTML = countDown10();
-        } else {
-            countdownElement.innerHTML = countDown20();
-        }
-    }
+//     function updateCountdown() {
+//         if (countdownStarted10) {
+//             countdownElement.className = 'game-starting';
+//             countdownElement.innerHTML = countDown10();
+//         } else {
+//             countdownElement.innerHTML = countDown20();
+//         }
+//     }
 
-    const intervalId = setInterval(() => {
-        if (globalPlayerCount >= 2 && !countdownStarted20 && !countdownStarted10) {
-            console.log("Starting 20-second countdown");
-            countdownStarted20 = true;
-            remainingTime = 20;
-            updateCountdown();
-            return;
-        }
+//     const intervalId = setInterval(() => {
+//         if (globalPlayerCount >= 2 && !countdownStarted20 && !countdownStarted10) {
+//             console.log("Starting 20-second countdown");
+//             countdownStarted20 = true;
+//             remainingTime = 20;
+//             updateCountdown();
+//             return;
+//         }
 
-        if (countdownStarted20 && (globalPlayerCount === 4 || remainingTime <= 0)) {
-            console.log("Starting 10-second countdown");
-            countdownStarted10 = true;
-            countdownStarted20 = false;
-            remainingTime = 10;
-            updateCountdown();
-            return;
-        }
+//         if (countdownStarted20 && (globalPlayerCount === 4 || remainingTime <= 0)) {
+//             console.log("Starting 10-second countdown");
+//             countdownStarted10 = true;
+//             countdownStarted20 = false;
+//             remainingTime = 10;
+//             updateCountdown();
+//             return;
+//         }
 
-        if (countdownStarted10 || countdownStarted20) {
-            if (remainingTime > 0) {
-                remainingTime--;
-            } else if (countdownStarted10) {
-                clearInterval(intervalId);
-                startGame();
+//         if (countdownStarted10 || countdownStarted20) {
+//             if (remainingTime > 0) {
+//                 remainingTime--;
+//             } else if (countdownStarted10) {
+//                 clearInterval(intervalId);
+//                 startGame();
 
-                return;
-            }
-            updateCountdown();
-        }
-    }, 1000);
+//                 return;
+//             }
+//             updateCountdown();
+//         }
+//     }, 1000);
 
-    updateCountdown();
+//     updateCountdown();
 
-    return countdownElement;
-}
+//     return countdownElement;
+// }
 
 
 export function waitingRoom() {
     let logo2 = VDOM.createElement("div", { id: "logoContainer" }, VDOM.createElement("img", { src: "../assets/logo2.svg" }))
 
-    let timer = VDOM.createElement("div", { id: "timer" }, "Starting in: 00:30 ")
+    let timer = VDOM.createElement("div", { id: "timer" }, "Waiting...")
 
 
     let allPlayer=VDOM.createElement("div", { id:"allplayer"},setPlayerImgAndName("John Doe", "player1", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player2", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player3", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player4", "../assets/player.svg"))

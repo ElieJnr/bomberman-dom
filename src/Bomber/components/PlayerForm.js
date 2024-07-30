@@ -53,7 +53,3 @@ export function changeScreen() {
         }
     })
 }
-
-function waitingRoom() {
-
-}
