@@ -4,10 +4,11 @@ import { ws } from '../app.js';
 
 export function createChat() {
     return VDOM.createElement('div', { id: 'chat-container' },
+        VDOM.createElement("div", { id: "messagehead" }, "Chat center"),
         VDOM.createElement('div', { id: 'messages' }),
         VDOM.createElement('form', { id: 'chatForm', onsubmit: sendMessage },
             VDOM.createElement('input', { type: 'text', id: 'chatMessage', placeholder: 'Type your message...', required: true }),
-            VDOM.createElement('button', { type: 'submit' }, 'Send')
+            VDOM.createElement('button', { type: 'submit', id:"submitmessage"}, VDOM.createElement("img",{src:"../assets/send.svg"}))
         )
     );
 }

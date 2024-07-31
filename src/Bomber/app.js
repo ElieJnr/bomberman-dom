@@ -8,6 +8,7 @@ import { createGame } from './components/GameBoard.js';
 import { insertMap } from './maps.js';
 import { initGame } from './initGame.js';
 import { waitingRoom } from './components/waitingRoom.js';
+import VDOM from '../core/dom.mjs';
 
 export const tabImageOfPlayer = ["../assets/player1.svg", "../assets/player2.svg", "../assets/player3.svg", "../assets/player4.svg"]
 export let objetOfPlayer = []
@@ -29,34 +30,32 @@ ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
     if (data.type === 'message') {
-        displayMessage(`${data.name}: ${data.content}`, data.name === playerName);
+        displayMessage(`${data.name}: "${data.content}"`, data.name === playerName);
     } else if (data.type === 'action') {
         updatePlayerAction(data.name, data.action);
     } else if (data.type === 'playerJoined') {
         
-        // showGameNotStarting(data.seconds, data.playerCount);
         // displayMessage(`${data.name} has joined the game.\n`, false);
-
         
         seconds = data.seconds;
         playerCount = data.playerCount;
-
-
+        
 
         objetOfPlayer=data.playerOrder
-
+        
         console.log("objetofplayer",objetOfPlayer);
-
+        
         waitingRoom(playerCount);
-
+        
         if (playerCount >= 2) {
             let timer = document.getElementById("timer")
             createCountdown(seconds, timer, "searching for other players...", () => (console.log("hello world")))
         }
-
-
-
-
+        
+        if (!document.getElementById("chat-container")){
+            VDOM.appendChildToBody(createChat())
+        }
+        
 
     } else if (data.type === 'playerDisconnected') {
 
@@ -94,13 +93,13 @@ ws.onmessage = (event) => {
 
 export function startGame() {
     MountComponent('#app', createGame, createChat);
-    insertMap();
+    // insertMap();
 }
 
-// export function showGameNotStarting(seconds, playerCount) {
-//     MountComponent('#app', createGame, createChat);
-//     MountComponent('#maps', createCountdown(seconds, playerCount));
-// }
+export function showGameNotStarting(seconds, playerCount) {
+    MountComponent('#app', createGame, createChat);
+    // MountComponent('#maps', createCountdown(seconds, playerCount));
+}
 
 export function MountComponent(target, ...components) {
     const container = document.querySelector(target);

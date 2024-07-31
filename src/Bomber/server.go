@@ -50,6 +50,8 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
+		fmt.Println("msg reçu",msg)
+
 		switch msg.Type {
 		case "join":
 			handleJoin(conn, msg.Name)
