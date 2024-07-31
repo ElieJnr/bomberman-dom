@@ -18,6 +18,7 @@ var (
 	mu               sync.Mutex
 	countdownStarted = false
 	gameStarted      = false
+	playerOrder      []string
 )
 
 type Message struct {
@@ -27,6 +28,7 @@ type Message struct {
 	Action      string `json:"action"`
 	Seconds     int    `json:"seconds,omitempty"`
 	PlayerCount int    `json:"playerCount,omitempty"`
+	PlayerOrder []string `json:"playerOrder,omitempty"`
 }
 
 func handleConnection(w http.ResponseWriter, r *http.Request) {
@@ -72,8 +74,9 @@ func handleJoin(conn *websocket.Conn, name string) {
 	if _, exists := waitingRoom[conn]; !exists {
 		fmt.Printf("%s connected\n", name)
 		waitingRoom[conn] = name
+		playerOrder = append(playerOrder, name)
 		playerCount++
-		broadcast <- Message{Type: "playerJoined", Name: name, Seconds: maxWaitTime, PlayerCount: playerCount}
+		broadcast <- Message{Type: "playerJoined", Name: name, Seconds: maxWaitTime, PlayerCount: playerCount, PlayerOrder: playerOrder}
 		// Commence le compte à rebours de 20 secondes si c'est le deuxième joueur
 		if playerCount == 2 && !countdownStarted {
 			go startCountdown()
@@ -86,9 +89,16 @@ func handleLogout(conn *websocket.Conn) {
 	defer mu.Unlock()
 
 	if name, exists := waitingRoom[conn]; exists {
-		broadcast <- Message{Type: "playerDisconnected", Name: name}
+		
 		delete(waitingRoom, conn)
+		removePlayerFromOrder(name)
 		playerCount--
+		broadcast <- Message{
+            Type:        "playerDisconnected",
+            Name:        name,
+            PlayerOrder: playerOrder,
+            PlayerCount: playerCount,
+        }
 	}
 }
 
@@ -97,9 +107,19 @@ func handleDisconnection(conn *websocket.Conn) {
 	defer mu.Unlock()
 
 	if name, exists := waitingRoom[conn]; exists {
-		broadcast <- Message{Type: "playerDisconnected", Name: name}
+		
 		delete(waitingRoom, conn)
+		removePlayerFromOrder(name)
 		playerCount--
+		if playerCount<2{
+			countdownStarted = false
+		}
+		broadcast <- Message{
+            Type:        "playerDisconnected",
+            Name:        name,
+            PlayerOrder: playerOrder,
+            PlayerCount: playerCount,
+        }
 	}
 }
 
@@ -118,17 +138,13 @@ func handleMessages() {
 	}
 }
 
-
-
-func main() {
-	http.HandleFunc("/", handleConnection)
-
-	go handleMessages()
-
-	fmt.Println("Server started at ws://localhost:8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Println("Error starting server:", err)
-	}
+func removePlayerFromOrder(name string) {
+    for i, player := range playerOrder {
+        if player == name {
+            playerOrder = append(playerOrder[:i], playerOrder[i+1:]...)
+            break
+        }
+    }
 }
 
 func startCountdown() {
@@ -142,6 +158,10 @@ func startCountdown() {
 			// Si 4 joueurs, on arrête le compte à rebours de 20s et on lance celui de 10s
 			break
 		}
+		if !countdownStarted{
+			maxWaitTime=20
+			return
+		}
 	}
 
 	// À la fin des 20s ou si 4 joueurs ont rejoint pendant les 20s
@@ -154,8 +174,21 @@ func startCountdown() {
 	} else {
 		broadcast <- Message{Type: "notEnoughPlayers"}
 	}
+	maxWaitTime=20
 }
 
 func closeConn(conn *websocket.Conn) {
 	conn.Close()
+}
+
+
+func main() {
+	http.HandleFunc("/", handleConnection)
+
+	go handleMessages()
+
+	fmt.Println("Server started at ws://localhost:8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		fmt.Println("Error starting server:", err)
+	}
 }

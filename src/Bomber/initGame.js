@@ -5,7 +5,7 @@ import { changeScreen } from "./components/PlayerForm.js";
 export function initGame(){
     let image=VDOM.createElement("div",{id:"logoContainer"},VDOM.createElement("img", {src:"../assets/logo1.svg"}))
     let input=VDOM.createElement("div",{id:"inputContainer"},VDOM.createElement("img",{id:"imgInput",src:"../assets/inputimg.svg"}),VDOM.createElement("input", {type:"text", id:"inputfield", autocomplete:"off"}))
-    let playerContainer=VDOM.createElement("div",{id:"playerContainer"},VDOM.createElement("img",{src:"../assets/player.svg", id:"playerimf"}))
+    let playerContainer=VDOM.createElement("div",{id:"playerContainer"},VDOM.createElement("img",{src:"../assets/bdom.png", id:"playerimg"}))
     let betterxpImg=VDOM.createElement("img",{id:"betterxp", src:"../assets/betterxp.svg"})
     VDOM.appendChildToElementById("app",image)
     VDOM.appendChildToElementById("app",input)

@@ -1,4 +1,4 @@
-import { startGame } from '../app.js';
+import { startGame, tabImageOfPlayer, objetOfPlayer } from '../app.js';
 import VDOM from '../../core/dom.mjs';
 import { playerName } from './PlayerForm.js';
 
@@ -71,15 +71,21 @@ import { playerName } from './PlayerForm.js';
 // }
 
 
-export function waitingRoom() {
+export function waitingRoom(nbrofplayer) {
+
+    document.getElementById("app").innerHTML = ""
+
     let logo2 = VDOM.createElement("div", { id: "logoContainer" }, VDOM.createElement("img", { src: "../assets/logo2.svg" }))
 
     let timer = VDOM.createElement("div", { id: "timer" }, "Waiting...")
 
 
-    let allPlayer=VDOM.createElement("div", { id:"allplayer"},setPlayerImgAndName("John Doe", "player1", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player2", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player3", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player4", "../assets/player.svg"))
+    // let allPlayer=VDOM.createElement("div", { id:"allplayer"},setPlayerImgAndName("John Doe", "player1", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player2", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player3", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player4", "../assets/player.svg"))
+    let allPlayer = VDOM.createElement("div", { id: "allplayer" })
 
-    let qtoquit = VDOM.createElement("img",{id:"qtoquit", src:"../assets/qtoquit.svg"})
+
+
+    let qtoquit = VDOM.createElement("img", { id: "qtoquit", src: "../assets/qtoquit.svg" })
 
     VDOM.appendChildToElementById("app", logo2)
 
@@ -87,10 +93,14 @@ export function waitingRoom() {
 
     VDOM.appendChildToElementById("app", allPlayer)
 
-    VDOM.appendChildToElementById("app",qtoquit)
+    VDOM.appendChildToElementById("app", qtoquit)
 
+    for (let i = 0; i < nbrofplayer; i++) {
+        console.log("je test", objetOfPlayer[i], "player" + (i + 1).toString(), tabImageOfPlayer[i]);
+        VDOM.appendChildToElementById("allplayer", setPlayerImgAndName(objetOfPlayer[i], "player" + (i + 1).toString(), tabImageOfPlayer[i]))
+    }
 }
 
-function setPlayerImgAndName(name, playerNbr, src) {
-    return VDOM.createElement("div", { id: playerNbr, class: "playerContainer" }, VDOM.createElement("div", { class: "playerImg" }, VDOM.createElement("img", { id: `${playerNbr}` + "Img", src: src })), VDOM.createElement("div", { id: `${playerNbr}` +"Name" , class:"NameOfPlayer" }, name))
+export function setPlayerImgAndName(name, playerNbr, src) {
+    return VDOM.createElement("div", { id: playerNbr, class: "playerContainer" }, VDOM.createElement("div", { class: "playerImg" }, VDOM.createElement("img", { id: `${playerNbr}` + "Img", src: src })), VDOM.createElement("div", { id: `${playerNbr}` + "Name", class: "NameOfPlayer" }, name))
 }

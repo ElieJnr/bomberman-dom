@@ -112,10 +112,19 @@ body {
     background-color: #fff;
 }
 
+.playerImg img{
+    height: 100%;
+}
+
 .NameOfPlayer{
     font-size: large;
 }
 
 #timer{
     margin-top: 100px;
+}
+
+
+#playerimg{
+    width: 100%;
 }

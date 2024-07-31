@@ -9,6 +9,9 @@ import { insertMap } from './maps.js';
 import { initGame } from './initGame.js';
 import { waitingRoom } from './components/waitingRoom.js';
 
+export const tabImageOfPlayer = ["../assets/player1.svg", "../assets/player2.svg", "../assets/player3.svg", "../assets/player4.svg"]
+export let objetOfPlayer = []
+
 export let seconds
 export let playerCount
 export let timerOn = false
@@ -30,16 +33,21 @@ ws.onmessage = (event) => {
     } else if (data.type === 'action') {
         updatePlayerAction(data.name, data.action);
     } else if (data.type === 'playerJoined') {
-
-        if (!document.getElementById("allplayer")) {
-            waitingRoom();
-        }
-
-
+        
         // showGameNotStarting(data.seconds, data.playerCount);
         // displayMessage(`${data.name} has joined the game.\n`, false);
+
+        
         seconds = data.seconds;
         playerCount = data.playerCount;
+
+
+
+        objetOfPlayer=data.playerOrder
+
+        console.log("objetofplayer",objetOfPlayer);
+
+        waitingRoom(playerCount);
 
         if (playerCount >= 2) {
             let timer = document.getElementById("timer")
@@ -51,15 +59,27 @@ ws.onmessage = (event) => {
 
 
     } else if (data.type === 'playerDisconnected') {
+
+        seconds = data.seconds;
+        playerCount = data.playerCount;
+
+        objetOfPlayer=data.playerOrder
+
+        waitingRoom(playerCount);
+
         displayMessage(`${data.name} has left the game.\n`, false);
-        removePlayer(data.name);
+        // removePlayer(data.name);
+
+        
+
+
     } else if (data.type === 'startPreparation') {
         console.log("je suis la");
         // displayMessage('Game will start in 10 seconds...', false);
 
         let timer = document.getElementById("timer")
-        let seconds=10
-            createCountdown(seconds, timer, " seconds left before start", () => (console.log("hello world")))
+        let seconds = 10
+        createCountdown(seconds, timer, " seconds left before start", () => (console.log("hello world")))
 
         // Additional logic for 10-second countdown can be added here
     } else if (data.type === 'startGame') {
