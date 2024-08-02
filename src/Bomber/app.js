@@ -53,7 +53,7 @@ ws.onmessage = (event) => {
         }
         
         if (!document.getElementById("chat-container")){
-            VDOM.appendChildToBody(createChat())
+            VDOM.appendChildToElementById("part3",createChat())
         }
         
 
@@ -92,7 +92,7 @@ ws.onmessage = (event) => {
 };
 
 export function startGame() {
-    MountComponent('#app', createGame, createChat);
+    MountComponent('#app', createGame);
     // insertMap();
 }
 

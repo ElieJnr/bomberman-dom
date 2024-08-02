@@ -73,30 +73,39 @@ import { playerName } from './PlayerForm.js';
 
 export function waitingRoom(nbrofplayer) {
 
-    document.getElementById("app").innerHTML = ""
+    if (!document.getElementById("container")) {
+        let container = document.createElement("div")
+        container.id = "container"
+        document.body.appendChild(container)
+        let app = document.getElementById("app")
+        app.innerHTML = ""
+        container.appendChild(app)
 
-    let logo2 = VDOM.createElement("div", { id: "logoContainer" }, VDOM.createElement("img", { src: "../assets/logo2.svg" }))
+        let logo2 = VDOM.createElement("div", { id: "logoContainer" }, VDOM.createElement("img", { src: "../assets/logo2.svg" }))
 
-    let timer = VDOM.createElement("div", { id: "timer" }, "Waiting...")
-
-
-    // let allPlayer=VDOM.createElement("div", { id:"allplayer"},setPlayerImgAndName("John Doe", "player1", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player2", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player3", "../assets/player.svg"),setPlayerImgAndName("John Doe", "player4", "../assets/player.svg"))
-    let allPlayer = VDOM.createElement("div", { id: "allplayer" })
+        let timer = VDOM.createElement("div", { id: "timer" }, "Waiting...")
 
 
+        let allPlayer = VDOM.createElement("div", { id: "allplayer" })
 
-    let qtoquit = VDOM.createElement("img", { id: "qtoquit", src: "../assets/qtoquit.svg" })
 
-    VDOM.appendChildToElementById("app", logo2)
 
-    VDOM.appendChildToElementById("app", timer)
+        let qtoquit = VDOM.createElement("img", { id: "qtoquit", src: "../assets/qtoquit.svg" })
 
-    VDOM.appendChildToElementById("app", allPlayer)
+        VDOM.appendChildToElementById("app", logo2)
 
-    VDOM.appendChildToElementById("app", qtoquit)
+        VDOM.appendChildToElementById("app", timer)
+
+        VDOM.appendChildToElementById("app", allPlayer)
+
+        VDOM.appendChildToElementById("app", qtoquit)
+
+        VDOM.appendChildToElementById("container", VDOM.createElement("div", { id: "otherside" }, VDOM.createElement("div", { id: "part1" }), VDOM.createElement("div", { id: "part2" }), VDOM.createElement("div", { id: "part3" })))
+    }
+
+    document.getElementById("allplayer").innerHTML=""
 
     for (let i = 0; i < nbrofplayer; i++) {
-        console.log("je test", objetOfPlayer[i], "player" + (i + 1).toString(), tabImageOfPlayer[i]);
         VDOM.appendChildToElementById("allplayer", setPlayerImgAndName(objetOfPlayer[i], "player" + (i + 1).toString(), tabImageOfPlayer[i]))
     }
 }
