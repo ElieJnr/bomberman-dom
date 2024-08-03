@@ -30,46 +30,47 @@ ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
     if (data.type === 'message') {
-        displayMessage(`${data.name}: "${data.content}"`, data.name === playerName);
+        console.log('test');
+        displayMessage(data.name, data.content);
     } else if (data.type === 'action') {
         updatePlayerAction(data.name, data.action);
     } else if (data.type === 'playerJoined') {
-        
+
         // displayMessage(`${data.name} has joined the game.\n`, false);
-        
+
         seconds = data.seconds;
         playerCount = data.playerCount;
-        
 
-        objetOfPlayer=data.playerOrder
-        
-        console.log("objetofplayer",objetOfPlayer);
-        
+
+        objetOfPlayer = data.playerOrder
+
+        console.log("objetofplayer", objetOfPlayer);
+
         waitingRoom(playerCount);
-        
+
         if (playerCount >= 2) {
             let timer = document.getElementById("timer")
             createCountdown(seconds, timer, "searching for other players...", () => (console.log("hello world")))
         }
-        
-        if (!document.getElementById("chat-container")){
-            VDOM.appendChildToElementById("part3",createChat())
+
+        if (!document.querySelector(".gamemessage")) {
+            VDOM.appendChildToElementById("part3", createChat())
         }
-        
+
 
     } else if (data.type === 'playerDisconnected') {
 
         seconds = data.seconds;
         playerCount = data.playerCount;
 
-        objetOfPlayer=data.playerOrder
+        objetOfPlayer = data.playerOrder
 
         waitingRoom(playerCount);
 
         displayMessage(`${data.name} has left the game.\n`, false);
         // removePlayer(data.name);
 
-        
+
 
 
     } else if (data.type === 'startPreparation') {
@@ -93,6 +94,8 @@ ws.onmessage = (event) => {
 
 export function startGame() {
     MountComponent('#app', createGame);
+    VDOM.appendChildToElementById('part2', powerUpContainer())
+    VDOM.appendChildToElementById('part1', lifeNcounter())
     // insertMap();
 }
 
@@ -153,4 +156,30 @@ function createCountdown(seconds, displayElement, message, onComplete,) {
 
     // Initial display
     updateDisplay();
+}
+
+function powerUpContainer() {
+    return VDOM.createElement('div', { class: 'gamepowerup' },
+        VDOM.createElement('div', { class: 'power', id: 'bomb' },
+            VDOM.createElement('img', { src: '../assets/bomb.svg', alt: '' })
+        ),
+        VDOM.createElement('div', { class: 'power', id: 'speed' },
+            VDOM.createElement('img', { src: '../assets/power2.svg', alt: '' })
+        ),
+        VDOM.createElement('div', { class: 'power', id: 'flame' },
+            VDOM.createElement('img', { src: '../assets/power3.svg', alt: '' })
+        ),
+        VDOM.createElement('div', { class: 'power', id: 'special' },
+            VDOM.createElement('img', { src: '../assets/power4.svg', alt: '' })
+        )
+    )
+}
+
+function lifeNcounter() {
+    return VDOM.createElement('div', { class: 'gamerightpart' },
+        VDOM.createElement('div', { class: 'lifecounter' },
+            VDOM.createElement('img', { src: '../assets/lifecounter.svg', alt: '' })
+        ),
+        VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
+    )
 }

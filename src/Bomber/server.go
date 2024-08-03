@@ -14,7 +14,7 @@ var (
 	waitingRoom      = make(map[*websocket.Conn]string)
 	broadcast        = make(chan Message)
 	playerCount      = 0
-	maxWaitTime      = 20
+	maxWaitTime      = 2
 	mu               sync.Mutex
 	countdownStarted = false
 	gameStarted      = false
@@ -22,12 +22,12 @@ var (
 )
 
 type Message struct {
-	Type        string `json:"type"`
-	Name        string `json:"name"`
-	Content     string `json:"content"`
-	Action      string `json:"action"`
-	Seconds     int    `json:"seconds,omitempty"`
-	PlayerCount int    `json:"playerCount,omitempty"`
+	Type        string   `json:"type"`
+	Name        string   `json:"name"`
+	Content     string   `json:"content"`
+	Action      string   `json:"action"`
+	Seconds     int      `json:"seconds,omitempty"`
+	PlayerCount int      `json:"playerCount,omitempty"`
 	PlayerOrder []string `json:"playerOrder,omitempty"`
 }
 
@@ -50,7 +50,7 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		fmt.Println("msg reçu",msg)
+		fmt.Println("msg reçu", msg)
 
 		switch msg.Type {
 		case "join":
@@ -91,16 +91,16 @@ func handleLogout(conn *websocket.Conn) {
 	defer mu.Unlock()
 
 	if name, exists := waitingRoom[conn]; exists {
-		
+
 		delete(waitingRoom, conn)
 		removePlayerFromOrder(name)
 		playerCount--
 		broadcast <- Message{
-            Type:        "playerDisconnected",
-            Name:        name,
-            PlayerOrder: playerOrder,
-            PlayerCount: playerCount,
-        }
+			Type:        "playerDisconnected",
+			Name:        name,
+			PlayerOrder: playerOrder,
+			PlayerCount: playerCount,
+		}
 	}
 }
 
@@ -109,19 +109,19 @@ func handleDisconnection(conn *websocket.Conn) {
 	defer mu.Unlock()
 
 	if name, exists := waitingRoom[conn]; exists {
-		
+
 		delete(waitingRoom, conn)
 		removePlayerFromOrder(name)
 		playerCount--
-		if playerCount<2{
+		if playerCount < 2 {
 			countdownStarted = false
 		}
 		broadcast <- Message{
-            Type:        "playerDisconnected",
-            Name:        name,
-            PlayerOrder: playerOrder,
-            PlayerCount: playerCount,
-        }
+			Type:        "playerDisconnected",
+			Name:        name,
+			PlayerOrder: playerOrder,
+			PlayerCount: playerCount,
+		}
 	}
 }
 
@@ -141,48 +141,47 @@ func handleMessages() {
 }
 
 func removePlayerFromOrder(name string) {
-    for i, player := range playerOrder {
-        if player == name {
-            playerOrder = append(playerOrder[:i], playerOrder[i+1:]...)
-            break
-        }
-    }
+	for i, player := range playerOrder {
+		if player == name {
+			playerOrder = append(playerOrder[:i], playerOrder[i+1:]...)
+			break
+		}
+	}
 }
 
 func startCountdown() {
 	countdownStarted = true
 	defer func() { countdownStarted = false }()
 
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 2; i++ {
 		time.Sleep(1 * time.Second)
-        maxWaitTime--
+		maxWaitTime--
 		if playerCount == 4 {
 			// Si 4 joueurs, on arrête le compte à rebours de 20s et on lance celui de 10s
 			break
 		}
-		if !countdownStarted{
-			maxWaitTime=20
+		if !countdownStarted {
+			maxWaitTime = 20
 			return
 		}
 	}
 
 	// À la fin des 20s ou si 4 joueurs ont rejoint pendant les 20s
 	if playerCount >= 2 {
-        gameStarted = true
+		gameStarted = true
 		broadcast <- Message{Type: "startPreparation"}
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Second)
 		broadcast <- Message{Type: "startGame"}
-		
+
 	} else {
 		broadcast <- Message{Type: "notEnoughPlayers"}
 	}
-	maxWaitTime=20
+	maxWaitTime = 20
 }
 
 func closeConn(conn *websocket.Conn) {
 	conn.Close()
 }
-
 
 func main() {
 	http.HandleFunc("/", handleConnection)

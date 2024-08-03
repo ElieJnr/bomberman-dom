@@ -90,7 +90,7 @@ export function waitingRoom(nbrofplayer) {
 
 
 
-        let qtoquit = VDOM.createElement("img", { id: "qtoquit", src: "../assets/qtoquit.svg" })
+        // let qtoquit = VDOM.createElement("img", { id: "qtoquit", src: "../assets/qtoquit.svg" })
 
         VDOM.appendChildToElementById("app", logo2)
 
@@ -98,7 +98,7 @@ export function waitingRoom(nbrofplayer) {
 
         VDOM.appendChildToElementById("app", allPlayer)
 
-        VDOM.appendChildToElementById("app", qtoquit)
+        // VDOM.appendChildToElementById("app", qtoquit)
 
         VDOM.appendChildToElementById("container", VDOM.createElement("div", { id: "otherside" }, VDOM.createElement("div", { id: "part1" }), VDOM.createElement("div", { id: "part2" }), VDOM.createElement("div", { id: "part3" })))
     }

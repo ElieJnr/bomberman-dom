@@ -7,12 +7,16 @@ import { ws } from '../app.js';
 
 export function createGame() {
     document.addEventListener('keydown', handleKeyDown);
-    return VDOM.createElement('div', { id: 'game-content' },
-        VDOM.createElement('div', { id: 'power-ups-container' },
-            VDOM.createElement('button', { id: 'logout-button', onclick: handleLogout }, 'Quit Game')
+    return VDOM.createElement('div', { class: 'gamecenter' },
+        VDOM.createElement('div', { class: 'gameheader' },
+            VDOM.createElement('div', { class: 'gamelogo' },
+                VDOM.createElement('img', { src: '../assets/logo.svg', alt: '' })
+            ),
         ),
-        VDOM.createElement('div', { id: 'maps' }),
-    )
+        VDOM.createElement('div', { class: 'gamebody' },
+            VDOM.createElement('div', { class: 'gamebodyleftpart' }),
+        )
+    );
 }
 
 function handleLogout() {
@@ -47,3 +51,17 @@ function getActionFromKey(key) {
             return null;
     }
 }
+
+// const gameCenter = VDOM.createElement('div', { class: 'gamecenter' },
+//     VDOM.createElement('div', { class: 'gameheader' },
+//         VDOM.createElement('div', { class: 'gamelogo' },
+//             VDOM.createElement('img', { src: 'assets/logo.svg', alt: '' })
+//         ),
+//         VDOM.createElement('div', { class: 'gamerightpart' },
+//             VDOM.createElement('div', { class: 'lifecounter' },
+//                 VDOM.createElement('img', { src: 'assets/lifecounter.svg', alt: '' })
+//             ),
+//             VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
+//         )
+//     )
+// )
