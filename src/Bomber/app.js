@@ -36,6 +36,8 @@ ws.onmessage = (event) => {
         updatePlayerAction(data.name, data.action);
     } else if (data.type === 'playerJoined') {
 
+        requestFullScreen()
+
         // displayMessage(`${data.name} has joined the game.\n`, false);
 
         seconds = data.seconds;
@@ -96,7 +98,7 @@ export function startGame() {
     MountComponent('#app', createGame);
     VDOM.appendChildToElementById('part2', powerUpContainer())
     VDOM.appendChildToElementById('part1', lifeNcounter())
-    // insertMap();
+    insertMap();
 }
 
 export function showGameNotStarting(seconds, playerCount) {
@@ -183,3 +185,21 @@ function lifeNcounter() {
         VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
     )
 }
+
+function requestFullScreen() {
+    let elem = document.documentElement;
+
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) { // Firefox
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { // IE/Edge
+        elem.msRequestFullscreen();
+    }
+}
+
+// document.addEventListener('DOMContentLoaded', (event) => {
+//     document.addEventListener('keypress', requestFullScreen);
+// });

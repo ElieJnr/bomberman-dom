@@ -190,7 +190,7 @@ class GameRenderer {
 }
 
 export function insertMap() {
-    const gameBody = document.getElementById("maps");
+    const gameBody = document.querySelector(".gamebodyleftpart");
     const eventHandler = new EventHandler();
     const gameRenderer = new GameRenderer(gameBody, eventHandler);
     gameRenderer.initialize();

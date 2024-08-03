@@ -113,3 +113,4 @@ export function waitingRoom(nbrofplayer) {
 export function setPlayerImgAndName(name, playerNbr, src) {
     return VDOM.createElement("div", { id: playerNbr, class: "playerContainer" }, VDOM.createElement("div", { class: "playerImg" }, VDOM.createElement("img", { id: `${playerNbr}` + "Img", src: src })), VDOM.createElement("div", { id: `${playerNbr}` + "Name", class: "NameOfPlayer" }, name))
 }
+
