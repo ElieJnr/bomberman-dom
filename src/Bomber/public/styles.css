@@ -118,6 +118,14 @@ body {
     gap: 60px 30px;
 }
 
+.player {
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    background-color: #ff0000;
+    border-radius: 50%;
+}
+
 .playerContainer {
     width: 120px;
     display: flex;
