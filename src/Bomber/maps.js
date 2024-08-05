@@ -284,57 +284,6 @@ class GameRenderer {
     }
 }
 
-function destroyBrick(row, col) {
-    const tileType = tileMap.getTile(col, row);
-    const tileDiv = document.getElementById(`${mapClass.BRITTLE_BRICK_CLASS}-${row}-${col}`);
-    
-    
-    if (tileType === tileMap.tileTypes.BRICK_WITH_POWERUP) {
-        tileMap.map[row][col] = tileMap.tileTypes.POWERUP;
-        // Remove the brick image
-        tileDiv.querySelector('img').remove();
-        
-        // Show the powerup
-        const powerupDiv = tileDiv.querySelector(`.${mapClass.POWERUP_CLASS}`);
-        powerupDiv.style.display = 'block';
-        
-        // Change the class and ID of the tileDiv
-        tileDiv.className = mapClass.POWERUP_CLASS;
-        tileDiv.id = `${mapClass.POWERUP_CLASS}-${row}-${col}`;
-
-        // Remove this brick from the list of bricks with powerup
-        tileMap.bricksWithPowerup = tileMap.bricksWithPowerup.filter(brick => brick.row !== row || brick.col !== col);
-    } else if (tileType === tileMap.tileTypes.BRICK) {
-        tileMap.map[row][col] = tileMap.tileTypes.EMPTY;
-        // Completely remove the brick element
-        tileDiv.remove();
-    }
-
-    // Check and replace surrounding tiles
-    const directions = [
-        { rowOffset: -1, colOffset: 0 }, // Up
-        { rowOffset: 1, colOffset: 0 },  // Down
-        { rowOffset: 0, colOffset: -1 }, // Left
-        { rowOffset: 0, colOffset: 1 },  // Right
-    ];
-
-    directions.forEach(direction => {
-        const newRow = row + direction.rowOffset;
-        const newCol = col + direction.colOffset;
-
-        // Ensure the new coordinates are within map boundaries
-        if (newRow >= 0 && newRow < tileMap.map.length && newCol >= 0 && newCol < tileMap.map[0].length) {
-            const adjacentTileType = tileMap.getTile(newCol, newRow);
-            if (adjacentTileType === tileMap.tileTypes.BRICK) {
-                tileMap.map[newRow][newCol] = tileMap.tileTypes.EMPTY;
-                const adjacentTileDiv = document.getElementById(`${mapClass.BRITTLE_BRICK_CLASS}-${newRow}-${newCol}`);
-                if (adjacentTileDiv) {
-                    adjacentTileDiv.remove();
-                }
-            }
-        }
-    });
-}
 
 function getBricksWithPowerup() {
     return tileMap.bricksWithPowerup;
@@ -347,4 +296,4 @@ function insertMap() {
     gameRenderer.initialize();
 }
 
-export { mapWidth, insertMap, destroyBrick, getBricksWithPowerup, tileMap };
+export { mapWidth, insertMap, getBricksWithPowerup, tileMap, mapClass };
