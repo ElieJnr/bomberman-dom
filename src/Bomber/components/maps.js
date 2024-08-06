@@ -1,6 +1,6 @@
-import VDOM from '../core/dom.mjs';
-import EventHandler from '../core/events.js';
-import StateManager from '../core/state.js';
+import VDOM from '../../core/dom.mjs';
+import EventHandler from '../../core/events.js';
+import StateManager from '../../core/state.js';
 
 var mapWidth;
 
@@ -284,7 +284,6 @@ class GameRenderer {
     }
 }
 
-
 function getBricksWithPowerup() {
     return tileMap.bricksWithPowerup;
 }
@@ -296,4 +295,4 @@ function insertMap() {
     gameRenderer.initialize();
 }
 
-export { mapWidth, insertMap, getBricksWithPowerup, tileMap, mapClass };
+export { insertMap, getBricksWithPowerup, tileMap, mapClass };

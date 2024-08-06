@@ -5,14 +5,13 @@ import { playerName } from './components/PlayerForm.js';
 import { removePlayer } from './components/Player.js';
 import { createGame } from './components/GameBoard.js';
 // import { createCountdown } from './components/waitingRoom.js';
-import { insertMap } from './maps.js';
+import { insertMap } from './components/maps.js';
 import { initGame } from './initGame.js';
 import { waitingRoom } from './components/waitingRoom.js';
 import VDOM from '../core/dom.mjs';
 
 export const tabImageOfPlayer = ["../assets/player1.svg", "../assets/player2.svg", "../assets/player3.svg", "../assets/player4.svg"]
 export let objetOfPlayer = []
-
 export let seconds
 export let playerCount
 export let timerOn = false
@@ -166,10 +165,10 @@ function powerUpContainer() {
             VDOM.createElement('img', { src: '../assets/bomb.svg', alt: '' })
         ),
         VDOM.createElement('div', { class: 'power', id: 'speed' },
-            VDOM.createElement('img', { src: '../assets/power2.svg', alt: '' })
+            VDOM.createElement('img', { src: '../assets/speed.svg', alt: '' })
         ),
         VDOM.createElement('div', { class: 'power', id: 'flame' },
-            VDOM.createElement('img', { src: '../assets/power3.svg', alt: '' })
+            VDOM.createElement('img', { src: '../assets/flame.svg', alt: '' })
         ),
         VDOM.createElement('div', { class: 'power', id: 'special' },
             VDOM.createElement('img', { src: '../assets/power4.svg', alt: '' })

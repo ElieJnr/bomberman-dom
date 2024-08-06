@@ -1,5 +1,6 @@
 import VDOM from '../../core/dom.mjs';
-import { mapWidth, tileMap, mapClass } from '../maps.js';
+import { tileMap, mapClass } from './maps.js';
+
 const playerElements = {};
 export const playerPositions = {};
 const bombElements = [];
@@ -86,7 +87,6 @@ export function updatePlayerAction(playerName, action) {
 function canMoveTo(row, col) {
     return tileMap.getTile(col, row) === tileMap.tileTypes.EMPTY || tileMap.getTile(col, row) === tileMap.tileTypes.POWERUP;
 }
-
 // function collision with the powerup
 function CollisionPowerup(row, col, playername) {
     const tileType = tileMap.getTile(col, row);
@@ -102,7 +102,6 @@ function CollisionPowerup(row, col, playername) {
         powerUp[playername] = true
     }
 }
-
 
 function placeBomb(row, col, playername) {
     const bombElement = VDOM.createElement('div', {
@@ -141,7 +140,6 @@ export function removePlayer(playerName) {
     // }
 
 }
-
 
 // Destroy brick in the diagonal
 function destroyBrick(row, col, playername) {
@@ -258,4 +256,24 @@ function destroyBrick(row, col, playername) {
         }
     })
 
+}
+
+function removePowerUp(row, col) {
+    const tileType = tileMap.getTile(col, row);
+    if (tileType !== tileMap.tileTypes.POWERUP) {
+        console.log("Il n'y a pas de power-up à cette position.");
+        return;
+    }
+    tileMap.map[row][col] = tileMap.tileTypes.EMPTY;
+    const tileDiv = document.getElementById(`${mapClass.BRITTLE_BRICK_CLASS}-${row}-${col}`);
+    if (tileDiv) {
+        const powerUpElement = tileDiv.querySelector(`.${mapClass.POWERUP_CLASS}`);
+        if (powerUpElement) {
+            powerUpElement.remove();
+        }
+        tileDiv.className = mapClass.EMPTY_DIV_CLASS;
+        tileDiv.id = `${mapClass.EMPTY_DIV_CLASS}-${row}-${col}`;
+    } else {
+        console.log("Impossible de trouver le div correspondant au power-up.");
+    }
 }
