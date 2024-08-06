@@ -41,6 +41,17 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Client connected")
 
+	go func() {
+		for {
+			time.Sleep(10 * time.Second) 
+			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				fmt.Println("Error sending ping message:", err)
+				handleDisconnection(conn)
+				return
+			}
+		}
+	}()
+
 	for {
 		var msg Message
 		err := conn.ReadJSON(&msg)
@@ -108,22 +119,38 @@ func handleDisconnection(conn *websocket.Conn) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	if name, exists := waitingRoom[conn]; exists {
-
+	name, exists := waitingRoom[conn]
+	if exists {
+		fmt.Println("handleDisconnection")
 		delete(waitingRoom, conn)
 		removePlayerFromOrder(name)
 		playerCount--
 		if playerCount < 2 {
 			countdownStarted = false
 		}
+
 		broadcast <- Message{
 			Type:        "playerDisconnected",
 			Name:        name,
 			PlayerOrder: playerOrder,
 			PlayerCount: playerCount,
 		}
+	} else {
+		fmt.Println("handleDisconnection: Player without name")
+		playerCount--
+		if playerCount < 2 {
+			countdownStarted = false
+		}
+
+		broadcast <- Message{
+			Type:        "playerDisconnected",
+			Name:        "Unknown", 
+			PlayerOrder: playerOrder,
+			PlayerCount: playerCount,
+		}
 	}
 }
+
 
 func handleMessages() {
 	for msg := range broadcast {

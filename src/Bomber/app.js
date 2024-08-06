@@ -24,6 +24,11 @@ ws.onopen = () => {
     // MountComponent('#app', HomeComponent)
 };
 
+ws.onerror = () => {
+    console.log('ws onclose');
+}
+
+
 ws.onmessage = (event) => {
     console.log('Received message:', event.data);
     const data = JSON.parse(event.data);
@@ -88,6 +93,7 @@ ws.onmessage = (event) => {
     } else if (data.type === 'notEnoughPlayers') {
         displayMessage('Not enough players to start the game.', false);
     } else if (data.type === 'gameStarted') {
+        console.log("hereeee", data.content);
         alert(data.content);
         ws.close();
     }
