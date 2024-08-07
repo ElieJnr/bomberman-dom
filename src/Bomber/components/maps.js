@@ -27,7 +27,6 @@ const tileMap = {
     svgMap: {
         1: "../assets/Wall.svg",
         2: "../assets/Brick.svg",
-        3: "../assets/bomb.svg",
     },
     gameConfig: {
         BRICK_COUNT: 60,
@@ -55,12 +54,12 @@ const tileMap = {
     },
 
     hasPowerup(row, col) {
-        return this.map[row][col] === this.tileTypes.BRICK_WITH_POWERUP;
+        return this.map[row][col] === this.tileTypes.POWERUP;
     },
 
     placeRandomBricks(count) {
         let placed = 0;
-        this.bricksWithPowerup = []; // Réinitialiser la liste
+        this.bricksWithPowerup = [];
         while (placed < count) {
             const randomRow = Math.floor(Math.random() * (this.rows - 2)) + 1;
             const randomCol = Math.floor(Math.random() * (this.columns - 2)) + 1;
@@ -73,12 +72,7 @@ const tileMap = {
             }
 
             if (this.map[randomRow][randomCol] === this.tileTypes.EMPTY) {
-                if (Math.random() < 0.1) {
-                    this.map[randomRow][randomCol] = this.tileTypes.BRICK_WITH_POWERUP;
-                    this.bricksWithPowerup.push({ row: randomRow, col: randomCol });
-                } else {
-                    this.map[randomRow][randomCol] = this.tileTypes.BRICK;
-                }
+                this.map[randomRow][randomCol] = this.tileTypes.BRICK;
                 placed++;
             }
         }
@@ -95,6 +89,8 @@ class GameRenderer {
         this.tilePool = new Map();
         this.lastSize = { width: 0, height: 0 };
         this.resizeTimeout = null;
+        this.currentPowerupIndex = 0;
+        this.powerupTypes = ['bomb', 'speed', 'flame'];
     }
 
     createDivs() {
@@ -159,7 +155,7 @@ class GameRenderer {
 
     createTile(tileType, col, row) {
         const className = this.getTileClassName(tileType, col, row);
-        const svgPath = tileMap.svgMap[tileType === tileMap.tileTypes.BRICK_WITH_POWERUP ? tileMap.tileTypes.BRICK : tileType];
+        const svgPath = tileMap.svgMap[tileType];
 
         const tileDiv = VDOM.createElement('div', {
             class: className,
@@ -184,19 +180,27 @@ class GameRenderer {
             tileDiv.children.push(svgElement);
         }
 
-        if (tileType === tileMap.tileTypes.BRICK_WITH_POWERUP) {
+        if (tileType === tileMap.tileTypes.POWERUP) {
+            const powerupType = this.getNextPowerupType();
             const powerupDiv = VDOM.createElement('div', {
-                class: mapClass.POWERUP_CLASS, 
+                class: mapClass.POWERUP_CLASS,
                 style: {
                     position: 'absolute',
                     left: '0',
                     top: '0',
                     width: '100%',
                     height: '100%',
-                    backgroundColor: 'red',
-                    display: 'none'
+                    zIndex: '1'
                 }
             });
+            const powerupSvg = VDOM.createElement('img', {
+                src: `../assets/${powerupType}.svg`,
+                style: {
+                    width: '100%',
+                    height: '100%'
+                }
+            });
+            powerupDiv.children.push(powerupSvg);
             tileDiv.children.push(powerupDiv);
         }
 
@@ -205,7 +209,7 @@ class GameRenderer {
 
     updateTile(tile, tileType, col, row) {
         const className = this.getTileClassName(tileType, col, row);
-        const svgPath = tileMap.svgMap[tileType === tileMap.tileTypes.BRICK_WITH_POWERUP ? tileMap.tileTypes.BRICK : tileType];
+        const svgPath = tileMap.svgMap[tileType];
 
         tile.attrs.class = className;
         tile.attrs.style.left = `${col * tileMap.tileSize}px`;
@@ -213,36 +217,40 @@ class GameRenderer {
         tile.attrs.style.width = `${tileMap.tileSize}px`;
         tile.attrs.style.height = `${tileMap.tileSize}px`;
 
+        tile.children = [];
+
         if (svgPath) {
-            if (tile.children.length === 0) {
-                const svgElement = VDOM.createElement('img', {
-                    src: svgPath,
-                    style: {
-                        width: '100%',
-                        height: '100%'
-                    }
-                });
-                tile.children.push(svgElement);
-            } else {
-                tile.children[0].attrs.src = svgPath;
-            }
-        } else {
-            tile.children = [];
+            const svgElement = VDOM.createElement('img', {
+                src: svgPath,
+                style: {
+                    width: '100%',
+                    height: '100%'
+                }
+            });
+            tile.children.push(svgElement);
         }
 
-        if (tileType === tileMap.tileTypes.BRICK_WITH_POWERUP && tile.children.length === 1) {
+        if (tileType === tileMap.tileTypes.POWERUP) {
+            const powerupType = this.getNextPowerupType();
             const powerupDiv = VDOM.createElement('div', {
-                class: mapClass.POWERUP_CLASS, 
+                class: mapClass.POWERUP_CLASS,
                 style: {
                     position: 'absolute',
                     left: '0',
                     top: '0',
                     width: '100%',
                     height: '100%',
-                    backgroundColor: 'red',
-                    display: 'none'
+                    zIndex: '1'
                 }
             });
+            const powerupSvg = VDOM.createElement('img', {
+                src: `../assets/${powerupType}.svg`,
+                style: {
+                    width: '100%',
+                    height: '100%'
+                }
+            });
+            powerupDiv.children.push(powerupSvg);
             tile.children.push(powerupDiv);
         }
     }
@@ -254,7 +262,6 @@ class GameRenderer {
                     ? mapClass.BORDER_WALL_CLASS 
                     : mapClass.PILLAR_WALL_CLASS;
             case tileMap.tileTypes.BRICK:
-            case tileMap.tileTypes.BRICK_WITH_POWERUP:
                 return mapClass.BRITTLE_BRICK_CLASS;
             case tileMap.tileTypes.EMPTY:
                 return mapClass.EMPTY_DIV_CLASS;
@@ -263,6 +270,12 @@ class GameRenderer {
             default:
                 return '';
         }
+    }
+
+    getNextPowerupType() {
+        const powerupType = this.powerupTypes[this.currentPowerupIndex];
+        this.currentPowerupIndex = (this.currentPowerupIndex + 1) % this.powerupTypes.length;
+        return powerupType;
     }
 
     onResize() {
@@ -277,10 +290,9 @@ class GameRenderer {
     }
 
     initialize() {
-        // tileMap.placeRandomBricks(tileMap.gameConfig.BRICK_COUNT);
+        tileMap.placeRandomBricks(tileMap.gameConfig.BRICK_COUNT);
         this.createDivs();
         this.renderMap();
-        // this.attachEventListeners();
     }
 }
 

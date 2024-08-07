@@ -258,6 +258,8 @@ function destroyBrick(row, col, playername) {
 
 }
 
+// @edieng tu peut utiliser cette fonction pour remove le powerUp avoir les avoirs utiliser  
+// et aussi y'a une fonction haspowerup qui detecte si c une powerup
 function removePowerUp(row, col) {
     const tileType = tileMap.getTile(col, row);
     if (tileType !== tileMap.tileTypes.POWERUP) {
