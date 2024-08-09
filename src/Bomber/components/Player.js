@@ -56,7 +56,8 @@ export function updatePlayerAction(playerName, action) {
             break;
         case 'place_bomb':
             if (boxplaced[playerName] != 0) {
-                boxplaced[playerName] -= 1 ;
+                console.log("number of lives left: ", playerLives[playerName]);
+                boxplaced[playerName] -= 1;
                 placeBomb(row, col, playerName);
                 setTimeout(() => {
                     boxplaced[playerName] = 1;
@@ -96,10 +97,11 @@ function CollisionPowerup(row, col, playername) {
     // console.log("this is col", col);
     // console.log("this is row1", playerPositions[playername].row);
     // console.log("this is col1", playerPositions[playername].col);
-    if (tileType === tileMap.tileTypes.POWERUP ) {
+    if (tileType === tileMap.tileTypes.POWERUP) {
         // tileMap.map[row][col] = tileMap.tileTypes.EMPTY
         console.log("je suis en collision avec un powerup");
         powerUp[playername] = true
+        removePowerUp(row, col)
     }
 }
 
@@ -170,21 +172,21 @@ function destroyBrick(row, col, playername) {
 
     // Check and replace surrounding tiles
     var directions = {}
-    if (!powerUp[playername]){
-         directions = [
+    if (!powerUp[playername]) {
+        directions = [
             { rowOffset: -1, colOffset: 0 }, // Up
             { rowOffset: 1, colOffset: 0 },  // Down
             { rowOffset: 0, colOffset: -1 }, // Left
             { rowOffset: 0, colOffset: 1 },  // Right
-        ];    
-    }else{
+        ];
+    } else {
         directions = [
             { rowOffset: -2, colOffset: 0 }, // Up
             { rowOffset: 2, colOffset: 0 },  // Down
             { rowOffset: 0, colOffset: -2 }, // Left
             { rowOffset: 0, colOffset: 2 },  // Right
         ];
-    
+
     }
 
     console.log(playername);
@@ -194,7 +196,7 @@ function destroyBrick(row, col, playername) {
     directions.forEach(direction => {
         const newRow = row + direction.rowOffset;
         const newCol = col + direction.colOffset;
-    
+
         // Ensure the new coordinates are within map boundaries
         if (newRow >= 0 && newRow < tileMap.map.length && newCol >= 0 && newCol < tileMap.map[0].length) {
             const adjacentTileType = tileMap.getTile(newCol, newRow);
@@ -205,14 +207,14 @@ function destroyBrick(row, col, playername) {
                     adjacentTileDiv.remove();
                 }
             }
-    
+
             // Handle the case for destroying bricks when the offset is 2
             if (Math.abs(direction.rowOffset) === 2 || Math.abs(direction.colOffset) === 2) {
                 // Check for adjacent tiles in the extended direction
                 for (let offset = 1; offset <= 2; offset++) {
                     const extendedRow = row + (direction.rowOffset / 2) * offset;
                     const extendedCol = col + (direction.colOffset / 2) * offset;
-    
+
                     // Ensure the extended coordinates are within map boundaries
                     if (extendedRow >= 0 && extendedRow < tileMap.map.length && extendedCol >= 0 && extendedCol < tileMap.map[0].length) {
                         const extendedTileType = tileMap.getTile(extendedCol, extendedRow);
@@ -222,7 +224,7 @@ function destroyBrick(row, col, playername) {
                             if (extendedTileDiv) {
                                 extendedTileDiv.remove();
                             }
-                        }else if (extendedTileType === tileMap.tileTypes.WALL){
+                        } else if (extendedTileType === tileMap.tileTypes.WALL) {
                             break;
                         }
                     }
@@ -230,31 +232,34 @@ function destroyBrick(row, col, playername) {
                 powerUp[playername] = false
             }
         }
-    
+
         // Check for player collision with the bomb (if it exists)
-        for (const playername in playerPositions) {
-            const playerRow = playerPositions[playername].row; // Assuming player element has data attributes for position
-            const playerCol = playerPositions[playername].col;
-            console.log(playerCol, playerRow);
-    
-            if (parseInt(playerRow) === newRow && parseInt(playerCol) === newCol || 
-            parseInt(playerCol) == newCol - 1 && parseInt(playerRow) === newRow -1) {
-                // Reduce player's life by 1
-    
-                console.log("en Contact avec la bombe");
-                playerLives[playername] -= 1;
-    
-                console.log(playerLives[playername]);
-                // Update the player's life display (assuming there's a function or element for this)
-                // updatePlayerLivesDisplay(gameState.playerLives);
-    
-                // Handle game over if lives are 0
-                if (playerLives[playername] <= 0) {
-                    removePlayer(playername);
-                }
+    })
+    for (const playername in playerPositions) {
+        const playerRow = playerPositions[playername].row; // Assuming player element has data attributes for position
+        const playerCol = playerPositions[playername].col;
+        console.log(playerCol, playerRow);
+
+        if (parseInt(playerRow) === row + 1 && parseInt(playerCol) === newCol  ||
+            parseInt(playerCol) == col  && parseInt(playerRow) === row + 1 ||
+            parseInt(playerCol) == col - 1 && parseInt(playerRow) == row ||
+            parseInt(playerCol) == col && parseInt(playerRow) == row - 1 ||
+            parseInt(playerCol) == col && parseInt(playerRow) == row) {
+            // Reduce player's life by 1
+
+            console.log("en Contact avec la bombe");
+            playerLives[playername] -= 1;
+
+            console.log("moi", playername, "il me reste", playerLives[playername], "vies");
+            // Update the player's life display (assuming there's a function or element for this)
+            // updatePlayerLivesDisplay(gameState.playerLives);
+
+            // Handle game over if lives are 0
+            if (playerLives[playername] <= 0) {
+                removePlayer(playername);
             }
         }
-    })
+    }
 
 }
 
@@ -267,7 +272,7 @@ function removePowerUp(row, col) {
         return;
     }
     tileMap.map[row][col] = tileMap.tileTypes.EMPTY;
-    const tileDiv = document.getElementById(`${mapClass.BRITTLE_BRICK_CLASS}-${row}-${col}`);
+    const tileDiv = document.getElementById(`powerup-${row}-${col}`);
     if (tileDiv) {
         const powerUpElement = tileDiv.querySelector(`.${mapClass.POWERUP_CLASS}`);
         if (powerUpElement) {

@@ -290,7 +290,7 @@ class GameRenderer {
     }
 
     initialize() {
-        tileMap.placeRandomBricks(tileMap.gameConfig.BRICK_COUNT);
+        // tileMap.placeRandomBricks(tileMap.gameConfig.BRICK_COUNT);
         this.createDivs();
         this.renderMap();
     }
