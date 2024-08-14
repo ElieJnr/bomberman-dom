@@ -6,6 +6,7 @@ export const playerPositions = {};
 const bombElements = [];
 var boxplaced = {}
 var powerUp = {};
+var whichpowerup;
 export const playerLives = {};
 export function updatePlayerAction(playerName, action) {
     console.log(`${playerName} action: ${action}`);
@@ -37,6 +38,9 @@ export function updatePlayerAction(playerName, action) {
     let { row, col } = playerPositions[playerName];
     let newRow = row;
     let newCol = col;
+    if (whichpowerup == "bomb" && powerUp[playerName]) {
+        boxplaced[playerName] = 2
+    }
     switch (action) {
         case 'move_left':
             newCol = Math.max(1, col - 1);
@@ -57,11 +61,17 @@ export function updatePlayerAction(playerName, action) {
         case 'place_bomb':
             if (boxplaced[playerName] != 0) {
                 console.log("number of lives left: ", playerLives[playerName]);
-                boxplaced[playerName] -= 1;
-                placeBomb(row, col, playerName);
-                setTimeout(() => {
-                    boxplaced[playerName] = 1;
-                }, 3000);
+                if (boxplaced[playerName] == 1) {
+                    boxplaced[playerName] -= 1;
+                    placeBomb(row, col, playerName);
+                    setTimeout(() => {
+                        boxplaced[playerName] = 1;
+                    }, 3000);
+                } else {
+                    boxplaced[playerName] -= 1;
+                    placeBomb(row, col, playerName);
+                    powerUp[playerName] = false
+                }
             } else {
                 console.log(`${playerName} a déjà placé une bombe.`);
             }
@@ -99,9 +109,23 @@ function CollisionPowerup(row, col, playername) {
     // console.log("this is col1", playerPositions[playername].col);
     if (tileType === tileMap.tileTypes.POWERUP) {
         // tileMap.map[row][col] = tileMap.tileTypes.EMPTY
-        console.log("je suis en collision avec un powerup");
-        powerUp[playername] = true
-        removePowerUp(row, col)
+        const tileDiv = document.getElementById(`powerup-${row}-${col}`);
+        const children = tileDiv.children;
+
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            var childclassname = child.getAttribute("class")
+            if (childclassname.includes("powerup") && !powerUp[playername]) {
+                console.log("je suis en collision avec un powerup");
+                powerUp[playername] = true
+                whichpowerup = childclassname.split("-")[1]
+                console.log("this is whichpowerup", whichpowerup);
+                removePowerUp(row, col)
+                break; 
+            }
+        }
+
+
     }
 }
 
@@ -172,31 +196,31 @@ function destroyBrick(row, col, playername) {
 
     // Check and replace surrounding tiles
     var directions = {}
-    if (!powerUp[playername]) {
-        directions = [
-            { rowOffset: -1, colOffset: 0 }, // Up
-            { rowOffset: 1, colOffset: 0 },  // Down
-            { rowOffset: 0, colOffset: -1 }, // Left
-            { rowOffset: 0, colOffset: 1 },  // Right
-        ];
-    } else {
+    if (powerUp[playername] && whichpowerup == "flame") {
         directions = [
             { rowOffset: -2, colOffset: 0 }, // Up
             { rowOffset: 2, colOffset: 0 },  // Down
             { rowOffset: 0, colOffset: -2 }, // Left
             { rowOffset: 0, colOffset: 2 },  // Right
         ];
-
+    } else {
+        directions = [
+            { rowOffset: -1, colOffset: 0 }, // Up
+            { rowOffset: 1, colOffset: 0 },  // Down
+            { rowOffset: 0, colOffset: -1 }, // Left
+            { rowOffset: 0, colOffset: 1 },  // Right
+        ];
     }
 
     console.log(playername);
 
     // const playerElement = document.getElementById(`player-${playername}`); // Assuming player has ID 'player'
 
+
     directions.forEach(direction => {
         const newRow = row + direction.rowOffset;
         const newCol = col + direction.colOffset;
-
+    
         // Ensure the new coordinates are within map boundaries
         if (newRow >= 0 && newRow < tileMap.map.length && newCol >= 0 && newCol < tileMap.map[0].length) {
             const adjacentTileType = tileMap.getTile(newCol, newRow);
@@ -207,17 +231,18 @@ function destroyBrick(row, col, playername) {
                     adjacentTileDiv.remove();
                 }
             }
-
+    
             // Handle the case for destroying bricks when the offset is 2
             if (Math.abs(direction.rowOffset) === 2 || Math.abs(direction.colOffset) === 2) {
-                // Check for adjacent tiles in the extended direction
                 for (let offset = 1; offset <= 2; offset++) {
                     const extendedRow = row + (direction.rowOffset / 2) * offset;
                     const extendedCol = col + (direction.colOffset / 2) * offset;
-
+    
                     // Ensure the extended coordinates are within map boundaries
                     if (extendedRow >= 0 && extendedRow < tileMap.map.length && extendedCol >= 0 && extendedCol < tileMap.map[0].length) {
                         const extendedTileType = tileMap.getTile(extendedCol, extendedRow);
+                        console.log("this is extendedtiletype", extendedTileType);
+    
                         if (extendedTileType === tileMap.tileTypes.BRICK) {
                             tileMap.map[extendedRow][extendedCol] = tileMap.tileTypes.EMPTY;
                             const extendedTileDiv = document.getElementById(`${mapClass.BRITTLE_BRICK_CLASS}-${extendedRow}-${extendedCol}`);
@@ -225,23 +250,25 @@ function destroyBrick(row, col, playername) {
                                 extendedTileDiv.remove();
                             }
                         } else if (extendedTileType === tileMap.tileTypes.WALL) {
-                            break;
+                            break; // Exit the inner loop, continue with the next direction
                         }
                     }
                 }
-                powerUp[playername] = false
+                powerUp[playername] = false;
             }
         }
-
+    
         // Check for player collision with the bomb (if it exists)
-    })
+    });
+    
+
     for (const playername in playerPositions) {
         const playerRow = playerPositions[playername].row; // Assuming player element has data attributes for position
         const playerCol = playerPositions[playername].col;
         console.log(playerCol, playerRow);
 
-        if (parseInt(playerRow) === row + 1 && parseInt(playerCol) === newCol  ||
-            parseInt(playerCol) == col  && parseInt(playerRow) === row + 1 ||
+        if (parseInt(playerRow) === row + 1 && parseInt(playerCol) === newCol ||
+            parseInt(playerCol) == col && parseInt(playerRow) === row + 1 ||
             parseInt(playerCol) == col - 1 && parseInt(playerRow) == row ||
             parseInt(playerCol) == col && parseInt(playerRow) == row - 1 ||
             parseInt(playerCol) == col && parseInt(playerRow) == row) {
@@ -274,12 +301,26 @@ function removePowerUp(row, col) {
     tileMap.map[row][col] = tileMap.tileTypes.EMPTY;
     const tileDiv = document.getElementById(`powerup-${row}-${col}`);
     if (tileDiv) {
-        const powerUpElement = tileDiv.querySelector(`.${mapClass.POWERUP_CLASS}`);
-        if (powerUpElement) {
-            powerUpElement.remove();
+        const children = tileDiv.children;
+        console.log("this is the children", children);
+        let foundPowerUp = false;
+
+        // Loop through all children and check their class names
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            var childclassname = child.getAttribute("class")
+            if (childclassname.includes("powerup")) {
+                foundPowerUp = true;
+                child.remove(); // Remove the power-up element
+                break; // Exit the loop once the power-up is found and removed
+            }
         }
-        tileDiv.className = mapClass.EMPTY_DIV_CLASS;
-        tileDiv.id = `${mapClass.EMPTY_DIV_CLASS}-${row}-${col}`;
+
+        // If a power-up was found and removed, update the tileDiv's class and id
+        if (foundPowerUp) {
+            tileDiv.className = mapClass.EMPTY_DIV_CLASS;
+            tileDiv.id = `${mapClass.EMPTY_DIV_CLASS}-${row}-${col}`;
+        }
     } else {
         console.log("Impossible de trouver le div correspondant au power-up.");
     }
