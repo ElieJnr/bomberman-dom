@@ -9,7 +9,10 @@ const mapClass = {
     BORDER_WALL_CLASS: 'border-wall',
     PILLAR_WALL_CLASS: 'pillar-wall',
     BRITTLE_BRICK_CLASS: 'brittle-brick',
-    POWERUP_CLASS: 'powerup'
+    POWERUP_CLASS: 'powerup',
+    POWERUP_BOMB_CLASS: 'powerup-bomb',
+    POWERUP_SPEED_CLASS: 'powerup-speed',
+    POWERUP_FLAME_CLASS: 'powerup-flame'
 };
 
 const tileMap = {
@@ -36,14 +39,14 @@ const tileMap = {
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 2, 0, 2, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 0, 0, 1],
         [1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1],
-        [1, 0, 0, 0, 0, 2, 2, 0, 0, 2, 3, 2, 0, 0, 0, 2, 0, 0, 0, 0, 1],
-        [1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 2, 1],
-        [1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 2, 0, 2, 3, 0, 0, 0, 0, 2, 1],
-        [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 2, 1],
+        [1, 0, 0, 0, 0, 2, 2, 0, 0, 2, 3, 2, 2, 0, 0, 2, 0, 0, 0, 0, 1],
+        [1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1, 2, 1],
+        [1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 2, 0, 2, 3, 2, 2, 0, 3, 2, 1],
+        [1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 2, 1],
         [1, 2, 2, 2, 0, 0, 2, 0, 0, 2, 0, 3, 0, 2, 0, 2, 0, 2, 0, 0, 1],
         [1, 3, 1, 0, 1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1],
-        [1, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 2, 2, 0, 0, 2, 3, 0, 0, 0, 1],
-        [1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 2, 1, 2, 1, 2, 1, 0, 1, 0, 1],
+        [1, 0, 0, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 0, 0, 3, 2, 0, 0, 0, 1],
+        [1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 2, 1, 0, 1, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ],
@@ -182,8 +185,9 @@ class GameRenderer {
 
         if (tileType === tileMap.tileTypes.POWERUP) {
             const powerupType = this.getNextPowerupType();
+            const powerupClass = getPowerupClass(powerupType);
             const powerupDiv = VDOM.createElement('div', {
-                class: mapClass.POWERUP_CLASS,
+                class: powerupClass,
                 style: {
                     position: 'absolute',
                     left: '0',
@@ -232,8 +236,9 @@ class GameRenderer {
 
         if (tileType === tileMap.tileTypes.POWERUP) {
             const powerupType = this.getNextPowerupType();
+            const powerupClass = getPowerupClass(powerupType);
             const powerupDiv = VDOM.createElement('div', {
-                class: mapClass.POWERUP_CLASS,
+                class: powerupClass,
                 style: {
                     position: 'absolute',
                     left: '0',
@@ -298,6 +303,19 @@ class GameRenderer {
 
 function getBricksWithPowerup() {
     return tileMap.bricksWithPowerup;
+}
+
+function getPowerupClass(powerupType) {
+    switch (powerupType) {
+        case 'bomb':
+            return mapClass.POWERUP_BOMB_CLASS;
+        case 'speed':
+            return mapClass.POWERUP_SPEED_CLASS;
+        case 'flame':
+            return mapClass.POWERUP_FLAME_CLASS;
+        default:
+            return mapClass.POWERUP_CLASS;
+    }
 }
 
 function insertMap() {
