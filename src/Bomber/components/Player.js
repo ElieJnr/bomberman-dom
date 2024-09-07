@@ -8,6 +8,28 @@ var boxplaced = {}
 var powerUp = {};
 var whichpowerup;
 export const playerLives = {};
+
+
+const actionThrottleTime = 200; 
+const lastActionTime = {}; 
+
+function canPerformAction(playerName) {
+    const now = Date.now();
+    if (!lastActionTime[playerName]) {
+        lastActionTime[playerName] = now;
+        return true;
+    }
+
+    const elapsed = now - lastActionTime[playerName];
+    if (elapsed >= actionThrottleTime) {
+        lastActionTime[playerName] = now;
+        return true;
+    }
+
+    return false;
+}
+
+
 export function updatePlayerAction(playerName, action) {
     console.log(`${playerName} action: ${action}`);
     let playerElement = playerElements[playerName];
@@ -41,41 +63,68 @@ export function updatePlayerAction(playerName, action) {
     if (whichpowerup == "bomb" && powerUp[playerName]) {
         boxplaced[playerName] = 2
     }
+    console.log(powerUp[playerName]);
+    
     switch (action) {
         case 'move_left':
-            newCol = Math.max(1, col - 1);
-            CollisionPowerup(newRow, newCol, playerName)
-            break;
-        case 'move_right':
-            newCol = Math.min(tileMap.columns - 2, col + 1);
-            CollisionPowerup(newRow, newCol, playerName)
-            break;
-        case 'move_up':
-            newRow = Math.max(1, row - 1);
-            CollisionPowerup(newRow, newCol, playerName)
-            break;
-        case 'move_down':
-            newRow = Math.min(tileMap.rows - 2, row + 1);
-            CollisionPowerup(newRow, newCol, playerName)
-            break;
-        case 'place_bomb':
-            if (boxplaced[playerName] != 0) {
-                console.log("number of lives left: ", playerLives[playerName]);
-                if (boxplaced[playerName] == 1) {
-                    boxplaced[playerName] -= 1;
-                    placeBomb(row, col, playerName);
-                    setTimeout(() => {
-                        boxplaced[playerName] = 1;
-                    }, 3000);
-                } else {
-                    boxplaced[playerName] -= 1;
-                    placeBomb(row, col, playerName);
-                    powerUp[playerName] = false
-                }
+            if (canPerformAction(playerName)) {
+                newCol = Math.max(1, col - 1);
+                CollisionPowerup(newRow, newCol, playerName);
             } else {
-                console.log(`${playerName} a déjà placé une bombe.`);
+                console.log(`${playerName} is moving too fast. Please wait.`);
             }
             break;
+    
+        case 'move_right':
+            if (canPerformAction(playerName)) {
+                newCol = Math.min(tileMap.columns - 2, col + 1);
+                CollisionPowerup(newRow, newCol, playerName);
+            } else {
+                console.log(`${playerName} is moving too fast. Please wait.`);
+            }
+            break;
+    
+        case 'move_up':
+            if (canPerformAction(playerName)) {
+                newRow = Math.max(1, row - 1);
+                CollisionPowerup(newRow, newCol, playerName);
+            } else {
+                console.log(`${playerName} is moving too fast. Please wait.`);
+            }
+            break;
+    
+        case 'move_down':
+            if (canPerformAction(playerName)) {
+                newRow = Math.min(tileMap.rows - 2, row + 1);
+                CollisionPowerup(newRow, newCol, playerName);
+            } else {
+                console.log(`${playerName} is moving too fast. Please wait.`);
+            }
+            break;
+    
+        case 'place_bomb':
+            if (canPerformAction(playerName)) {
+                if (boxplaced[playerName] != 0) {
+                    console.log("number of lives left: ", playerLives[playerName]);
+                    if (boxplaced[playerName] == 1) {
+                        boxplaced[playerName] -= 1;
+                        placeBomb(row, col, playerName);
+                        setTimeout(() => {
+                            boxplaced[playerName] = 1;
+                        }, 3000);
+                    } else {
+                        boxplaced[playerName] -= 1;
+                        placeBomb(row, col, playerName);
+                        powerUp[playerName] = false;
+                    }
+                } else {
+                    console.log(`${playerName} a déjà placé une bombe.`);
+                }
+            } else {
+                console.log(`${playerName} is placing bombs too fast. Please wait.`);
+            }
+            break;
+    
         default:
             break;
     }
