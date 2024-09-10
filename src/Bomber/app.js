@@ -73,6 +73,11 @@ ws.onmessage = (event) => {
 
         waitingRoom(playerCount);
 
+        if (playerCount >= 2) {
+            let timer = document.getElementById("timer")
+            createCountdown(seconds, timer, "searching for other players...", () => (console.log("hello world")))
+        }
+
         displayMessage(`${data.name} has left the game.\n`, false);
         // removePlayer(data.name);
 
