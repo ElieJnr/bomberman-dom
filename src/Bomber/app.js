@@ -5,7 +5,7 @@ import { playerName } from './components/PlayerForm.js';
 import { removePlayer } from './components/Player.js';
 import { createGame } from './components/GameBoard.js';
 // import { createCountdown } from './components/waitingRoom.js';
-import { insertMap } from './components/maps.js';
+import { allpos, insertMap } from './components/maps.js';
 import { initGame } from './initGame.js';
 import { waitingRoom } from './components/waitingRoom.js';
 import VDOM from '../core/dom.mjs';
@@ -34,26 +34,23 @@ ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
     if (data.type === 'message') {
-        console.log('test');
         displayMessage(data.name, data.content);
     } else if (data.type === 'action') {
-        updatePlayerAction(data.name, data.action);
+        var temp = allpos
+        updatePlayerAction(data.name, data.action, temp[data.name].x,temp[data.name].y);
     } else if (data.type === 'playerJoined') {
 
-        requestFullScreen()
-
-        // displayMessage(`${data.name} has joined the game.\n`, false);
+        // requestFullScreen()
 
         seconds = data.seconds;
-        playerCount = data.playerCount;
 
+        playerCount = data.playerCount;
 
         objetOfPlayer = data.playerOrder
 
         console.log("objetofplayer", objetOfPlayer);
 
         waitingRoom(playerCount);
-
         if (playerCount >= 2) {
             let timer = document.getElementById("timer")
             createCountdown(seconds, timer, "searching for other players...", () => (console.log("hello world")))
@@ -80,10 +77,6 @@ ws.onmessage = (event) => {
 
         displayMessage(`${data.name} has left the game.\n`, false);
         // removePlayer(data.name);
-
-
-
-
     } else if (data.type === 'startPreparation') {
         console.log("je suis la");
         // displayMessage('Game will start in 10 seconds...', false);
@@ -94,7 +87,8 @@ ws.onmessage = (event) => {
 
         // Additional logic for 10-second countdown can be added here
     } else if (data.type === 'startGame') {
-        startGame();
+        // console.log("startGame", objetOfPlayer);
+        startGame(objetOfPlayer);
     } else if (data.type === 'notEnoughPlayers') {
         displayMessage('Not enough players to start the game.', false);
     } else if (data.type === 'gameStarted') {
@@ -104,11 +98,11 @@ ws.onmessage = (event) => {
     }
 };
 
-export function startGame() {
+export function startGame(objetOfPlayer) {
     MountComponent('#app', createGame);
     VDOM.appendChildToElementById('part2', powerUpContainer())
     VDOM.appendChildToElementById('part1', lifeNcounter())
-    insertMap();
+    insertMap(objetOfPlayer);
 }
 
 export function showGameNotStarting(seconds, playerCount) {

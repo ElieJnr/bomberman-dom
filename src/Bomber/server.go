@@ -14,7 +14,7 @@ var (
 	waitingRoom      = make(map[*websocket.Conn]string)
 	broadcast        = make(chan Message)
 	playerCount      = 0
-	maxWaitTime      = 2
+	maxWaitTime      = 10
 	mu               sync.Mutex
 	countdownStarted = false
 	gameStarted      = false
@@ -180,7 +180,7 @@ func startCountdown() {
 	countdownStarted = true
 	defer func() { countdownStarted = false }()
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 10; i++ {
 		time.Sleep(1 * time.Second)
 		maxWaitTime--
 		if playerCount == 4 {
