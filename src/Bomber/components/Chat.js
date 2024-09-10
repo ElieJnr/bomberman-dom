@@ -1,6 +1,6 @@
 import VDOM from '../../core/dom.mjs';
+import { ws } from '../globals.js';
 import { playerName } from './PlayerForm.js';
-import { ws } from '../app.js';
 
 export function createChat() {
     // return VDOM.createElement('div', { id: 'chat-container' },

@@ -1,6 +1,6 @@
-import { startGame, tabImageOfPlayer, objetOfPlayer } from '../app.js';
 import VDOM from '../../core/dom.mjs';
-import { playerName } from './PlayerForm.js';
+import { tabImageOfPlayer } from '../app.js';
+import { objetOfPlayer } from '../websocket.js';
 
 // export function createCountdown(initialSeconds, playerCount) {
 //     let remainingTime = initialSeconds;
@@ -70,7 +70,6 @@ import { playerName } from './PlayerForm.js';
 //     return countdownElement;
 // }
 
-
 export function waitingRoom(nbrofplayer) {
 
     if (!document.getElementById("container")) {
@@ -87,8 +86,6 @@ export function waitingRoom(nbrofplayer) {
 
 
         let allPlayer = VDOM.createElement("div", { id: "allplayer" })
-
-
 
         // let qtoquit = VDOM.createElement("img", { id: "qtoquit", src: "../assets/qtoquit.svg" })
 

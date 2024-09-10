@@ -1,6 +1,6 @@
 import VDOM from '../../core/dom.mjs';
 import EventHandler from '../../core/events.js';
-import { ws } from '../app.js';
+import { ws } from '../globals.js';
 
 export let playerName = "";
 
