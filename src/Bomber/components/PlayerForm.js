@@ -118,8 +118,14 @@ export function changeScreen() {
         if (event.key == "Enter") {
             playerName = document.getElementById('inputfield').value.trim();
             if (playerName) {
-                ws.send(JSON.stringify({ type: 'join', name: playerName }));
-                eventHandler.trigger("enterkey", "");
+                if (ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) {
+                    console.warn("WebSocket is in CLOSING or CLOSED state. Reloading page...");
+                    // Recharger la page
+                    window.location.reload();
+                } else {
+                    ws.send(JSON.stringify({ type: 'join', name: playerName }));
+                    eventHandler.trigger("enterkey", "");
+                }
 
                 // Supprimer l'écouteur d'événement après envoi du message
                 document.removeEventListener("keydown", keydownHandler);

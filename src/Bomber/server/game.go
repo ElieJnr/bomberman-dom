@@ -78,3 +78,16 @@ func StartCountdown() {
 
 	maxWaitTime = 20
 }
+
+func EndGame() {
+	gameStarted = false
+	broadcast <- Message{Type: "gameEnded", Content: "The game has been stopped due to insufficient players."}
+	for client := range waitingRoom {
+		conn := client
+		conn.WriteJSON(Message{Type: "gameEnded", Content: "The game has been stopped. Returning to the home screen."})
+		CloseConn(conn)
+	}
+	playerOrder = []string{}
+	playerCount = 0
+	maxWaitTime = 20
+}

@@ -22,6 +22,8 @@ export function setupWebSocket() {
 }
 
 function handleWebSocketMessage(data) {
+  console.log("datatype", data.type);
+
   switch (data.type) {
     case 'message':
       displayMessage(data.name, data.content);
@@ -47,6 +49,15 @@ function handleWebSocketMessage(data) {
     case 'gameStarted':
       alert(data.content);
       ws.close();
+      break;
+    case 'gameEnded':
+      alert(data.content);
+      ws.close();
+      window.location.reload(); 
+      break;
+    case 'error':
+      console.warn(data.content);
+      window.location.reload();
       break;
     default:
       console.error('Unknown WebSocket message type:', data.type);

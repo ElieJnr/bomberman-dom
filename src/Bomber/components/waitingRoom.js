@@ -70,9 +70,10 @@ import { objetOfPlayer } from '../websocket.js';
 //     return countdownElement;
 // }
 
-export function waitingRoom(nbrofplayer) {
-
-    if (!document.getElementById("container")) {
+export function waitingRoom(nbrOfPlayer) {
+    
+    if (!document.getElementById("container") && nbrOfPlayer !== undefined) {
+        console.log("nbrOfPlayer", nbrOfPlayer);
         let container = document.createElement("div")
         container.id = "container"
         document.body.appendChild(container)
@@ -100,9 +101,9 @@ export function waitingRoom(nbrofplayer) {
         VDOM.appendChildToElementById("container", VDOM.createElement("div", { id: "otherside" }, VDOM.createElement("div", { id: "part1" }), VDOM.createElement("div", { id: "part2" }), VDOM.createElement("div", { id: "part3" })))
     }
 
-    document.getElementById("allplayer").innerHTML=""
+    document.getElementById("allplayer").innerHTML = ""
 
-    for (let i = 0; i < nbrofplayer; i++) {
+    for (let i = 0; i < nbrOfPlayer; i++) {
         VDOM.appendChildToElementById("allplayer", setPlayerImgAndName(objetOfPlayer[i], "player" + (i + 1).toString(), tabImageOfPlayer[i]))
     }
 }

@@ -23,6 +23,7 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	fmt.Println("Client connected")
+	fmt.Println("playerCount", playerCount)
 
 	go SendPingMessages(conn)
 
@@ -33,6 +34,12 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Error reading message:", err)
 			HandleDisconnection(conn)
 			break
+		}
+
+		if msg.Type == "" {
+			fmt.Println("Received message with empty type:", msg)
+			conn.WriteJSON(Message{Type: "error", Content: "Invalid message format"})
+			continue
 		}
 
 		fmt.Println("Message received:", msg)
@@ -76,6 +83,7 @@ func HandleJoin(conn *websocket.Conn, name string) {
 		playerCount++
 		BroadcastPlayerJoined(name)
 
+		fmt.Println("playerCount", playerCount)
 		if playerCount == 2 && !countdownStarted {
 			go StartCountdown()
 		}
@@ -94,20 +102,37 @@ func HandleDisconnection(conn *websocket.Conn) {
 	defer mu.Unlock()
 
 	RemovePlayer(conn)
+
+	if playerCount < 2 && gameStarted {
+		EndGame()
+	}
 }
 
 func RemovePlayer(conn *websocket.Conn) {
 	name, exists := waitingRoom[conn]
 	if !exists {
-		name = "Unknown"
+		name = "Unknown Player"
 	}
 
 	fmt.Printf("Player %s disconnected\n", name)
 	delete(waitingRoom, conn)
 	RemovePlayerFromOrder(name)
-	playerCount--
+	if playerCount > 0 {
+		playerCount--
+	}
 
-	if playerCount < 2 {
+	fmt.Println("playerCount1", playerCount)
+	if playerCount == 1 {
+		for remainingPlayer := range waitingRoom {
+			err := remainingPlayer.WriteJSON(Message{
+				Type:    "gameEnded",
+				Content: "You are the last player remaining. You win!",
+			})
+			if err != nil {
+				fmt.Println("Error sending win message:", err)
+			}
+		}
+	} else if playerCount < 2 {
 		countdownStarted = false
 	}
 
