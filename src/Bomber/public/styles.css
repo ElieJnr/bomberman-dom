@@ -444,7 +444,7 @@ body {
     font-family: "Roboto", sans-serif;
     background-color: #fff;
     height: 100%;
-    width: 100%;
+    width: 25vw;
     border-radius: 6px;
 }
 
@@ -455,11 +455,17 @@ body {
 
 .messageType {
     height: 70%;
+    /* width: 70%; */
+    overflow-y: scroll;
 }
 
 .messagecontent {
     font-size: 14px;
     font-weight: 300;
+    width: 18vw;
+    /* background-color: red; */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .thecontent {
