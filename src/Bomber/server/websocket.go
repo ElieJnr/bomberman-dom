@@ -35,7 +35,8 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 			HandleDisconnection(conn)
 			break
 		}
-
+		
+		fmt.Println("playerCount", playerCount)
 		if msg.Type == "" {
 			fmt.Println("Received message with empty type:", msg)
 			conn.WriteJSON(Message{Type: "error", Content: "Invalid message format"})
@@ -59,7 +60,9 @@ func SendPingMessages(conn *websocket.Conn) {
 	for {
 		time.Sleep(10 * time.Second)
 		if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-			fmt.Println("Error sending ping message:", err)
+			fmt.Println("Error sending ping message1:", err)
+			ResetGame()
+			fmt.Println("Error sending ping message2:", err)
 			HandleDisconnection(conn)
 			return
 		}
@@ -102,6 +105,7 @@ func HandleDisconnection(conn *websocket.Conn) {
 	defer mu.Unlock()
 
 	RemovePlayer(conn)
+	ResetGame()
 
 	if playerCount < 2 && gameStarted {
 		EndGame()
@@ -132,6 +136,9 @@ func RemovePlayer(conn *websocket.Conn) {
 				fmt.Println("Error sending win message:", err)
 			}
 		}
+		ResetGame()
+	fmt.Println("playerCountaFTER RESET", playerCount)
+
 	} else if playerCount < 2 {
 		countdownStarted = false
 	}
@@ -156,4 +163,16 @@ func BroadcastPlayerJoined(name string) {
 
 func CloseConn(conn *websocket.Conn) {
 	conn.Close()
+}
+
+func ResetGame() {
+    fmt.Println("Attempting to reset game...") 
+
+    waitingRoom = make(map[*websocket.Conn]string)
+    playerOrder = []string{}
+    playerCount = 0
+    countdownStarted = false
+    gameStarted = false
+
+    fmt.Println("Game has been reset and is ready for new players.") 
 }
