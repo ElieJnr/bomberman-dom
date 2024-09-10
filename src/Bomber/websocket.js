@@ -11,7 +11,6 @@ export let seconds;
 export let playerCount;
 export let objetOfPlayer = [];
 
-
 export function setupWebSocket() {
   ws.onopen = () => {
     console.log('WebSocket connection established');

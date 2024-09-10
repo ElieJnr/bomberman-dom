@@ -29,8 +29,7 @@ const tileMap = {
     WALL: 1,
     BRICK: 2,
     POWERUP: 3,
-    SPECIALPOWERUP: 4,
-    BRICK_WITH_POWERUP: 5,
+    BRICK_WITH_POWERUP: 4
   },
   svgMap: {
     1: "../assets/Wall.svg",
@@ -42,17 +41,17 @@ const tileMap = {
   },
   map: [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 2, 0, 2, 0, 0, 2, 0, 0, 2, 2, 0, 0, 2, 0, 0, 0, 1],
-    [1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 2, 2, 0, 0, 2, 3, 2, 2, 0, 0, 2, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 2, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 0, 2, 0, 0, 0, 1],
+    [1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 2, 2, 0, 0, 2, 4, 2, 2, 0, 0, 2, 0, 0, 0, 0, 1],
     [1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1, 2, 1],
-    [1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 2, 0, 2, 3, 2, 2, 0, 3, 2, 1],
+    [1, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 2, 0, 2, 4, 2, 2, 0, 4, 2, 1],
     [1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 2, 1],
-    [1, 2, 2, 2, 0, 0, 2, 0, 0, 2, 0, 3, 0, 2, 0, 2, 0, 2, 0, 0, 1],
-    [1, 3, 1, 0, 1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1],
-    [1, 0, 0, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 0, 0, 3, 2, 0, 0, 0, 1],
+    [1, 2, 2, 2, 0, 2, 2, 0, 0, 2, 2, 4, 0, 2, 0, 2, 0, 2, 0, 0, 1],
+    [1, 4, 1, 0, 1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1],
+    [1, 0, 0, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 0, 0, 4, 2, 0, 0, 0, 1],
     [1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 2, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 2, 2, 2, 3, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 2, 0, 2, 2, 2, 4, 2, 2, 2, 2, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   ],
 
@@ -161,15 +160,16 @@ class GameRenderer {
       this.createOrUpdatePlayer(player, playerPosition.x, playerPosition.y);
     }
   }
+
   getPlayerPositions(gridWidth, gridHeight, maxPlayers) {
     const positions = [];
     // const padding = 20; // Distance from the edges
 
     const possiblePositions = [
       { x: 1, y: 1 },
-      { x: 1 , y: 19 }, 
-      { x: 11, y: 1  }, 
-      { x: 11 , y: 19 }, 
+      { x: 1, y: 19 },
+      { x: 11, y: 1 },
+      { x: 11, y: 19 },
     ];
 
     for (let i = 0; i < maxPlayers; i++) {
@@ -182,15 +182,15 @@ class GameRenderer {
   // Function to create or update a player on the map
   createOrUpdatePlayer(player, x, y) {
     let playerElement = VDOM.createElement("div", {
-        class: "player",
-        id: `player-${player}`,
-        style: {
-          position: "absolute",
-          left: `${y*45}px`,//"45px"
-           top: `${x*45}px`,//"45px"
-        },
-      });
-      document.getElementById("mapDiv").appendChild(playerElement.render());
+      class: "player",
+      id: `player-${player}`,
+      style: {
+        position: "absolute",
+        left: `${y * 45}px`,//"45px"
+        top: `${x * 45}px`,//"45px"
+      },
+    });
+    document.getElementById("mapDiv").appendChild(playerElement.render());
   }
 
   setupmapDiv(width, height, left, top) {
@@ -221,49 +221,98 @@ class GameRenderer {
     const className = this.getTileClassName(tileType, col, row);
     const svgPath = tileMap.svgMap[tileType];
 
-    const tileDiv = VDOM.createElement("div", {
+    const tileDiv = VDOM.createElement('div', {
       class: className,
       id: `${className}-${row}-${col}`,
       style: {
-        position: "absolute",
+        position: 'absolute',
         left: `${col * tileMap.tileSize}px`,
         top: `${row * tileMap.tileSize}px`,
         width: `${tileMap.tileSize}px`,
-        height: `${tileMap.tileSize}px`,
-      },
+        height: `${tileMap.tileSize}px`
+      }
     });
 
     if (svgPath) {
-      const svgElement = VDOM.createElement("img", {
+      const svgElement = VDOM.createElement('img', {
         src: svgPath,
         style: {
-          width: "100%",
-          height: "100%",
-        },
+          width: '100%',
+          height: '100%'
+        }
       });
       tileDiv.children.push(svgElement);
+    }
+
+    if (tileType === tileMap.tileTypes.BRICK_WITH_POWERUP) {
+      const brickDiv = VDOM.createElement('div', {
+        class: mapClass.BRITTLE_BRICK_CLASS,
+        id: `${mapClass.BRITTLE_BRICK_CLASS}-${row}-${col}`,
+        style: {
+          position: 'absolute',
+          left: `${col * tileMap.tileSize}px`,
+          top: `${row * tileMap.tileSize}px`,
+          width: `${tileMap.tileSize}px`,
+          height: `${tileMap.tileSize}px`
+        }
+      });
+
+      const brickSvg = VDOM.createElement('img', {
+        src: tileMap.svgMap[tileMap.tileTypes.BRICK],
+        style: {
+          width: '100%',
+          height: '100%'
+        }
+      });
+      brickDiv.children.push(brickSvg);
+
+      const powerupType = this.getNextPowerupType();
+      const powerupClass = getPowerupClass(powerupType);
+      const powerupDiv = VDOM.createElement('div', {
+        class: `${powerupClass} hidden`,
+        style: {
+          position: 'absolute',
+          left: '0',
+          top: '0',
+          width: '100%',
+          height: '100%',
+          zIndex: '1',
+          display: 'none'
+        }
+      });
+      const powerupSvg = VDOM.createElement('img', {
+        src: `../assets/${powerupType}.svg`,
+        style: {
+          width: '100%',
+          height: '100%'
+        }
+      });
+      powerupDiv.children.push(powerupSvg);
+      brickDiv.children.push(powerupDiv);
+
+      return brickDiv;
     }
 
     if (tileType === tileMap.tileTypes.POWERUP) {
       const powerupType = this.getNextPowerupType();
       const powerupClass = getPowerupClass(powerupType);
-      const powerupDiv = VDOM.createElement("div", {
+      const powerupDiv = VDOM.createElement('div', {
         class: powerupClass,
         style: {
-          position: "absolute",
-          left: "0",
-          top: "0",
-          width: "100%",
-          height: "100%",
-          zIndex: "1",
-        },
+          position: 'absolute',
+          left: '0',
+          top: '0',
+          width: '100%',
+          height: '100%',
+          zIndex: '1'
+        }
       });
-      const powerupSvg = VDOM.createElement("img", {
+      const powerupSvg = VDOM.createElement('img', {
         src: `../assets/${powerupType}.svg`,
         style: {
-          width: "100%",
-          height: "100%",
-        },
+          width: '100%',
+          height: '100%'
+        }
       });
       powerupDiv.children.push(powerupSvg);
       tileDiv.children.push(powerupDiv);
@@ -285,12 +334,12 @@ class GameRenderer {
     tile.children = [];
 
     if (svgPath) {
-      const svgElement = VDOM.createElement("img", {
+      const svgElement = VDOM.createElement('img', {
         src: svgPath,
         style: {
-          width: "100%",
-          height: "100%",
-        },
+          width: '100%',
+          height: '100%'
+        }
       });
       tile.children.push(svgElement);
     }
@@ -298,23 +347,23 @@ class GameRenderer {
     if (tileType === tileMap.tileTypes.POWERUP) {
       const powerupType = this.getNextPowerupType();
       const powerupClass = getPowerupClass(powerupType);
-      const powerupDiv = VDOM.createElement("div", {
+      const powerupDiv = VDOM.createElement('div', {
         class: powerupClass,
         style: {
-          position: "absolute",
-          left: "0",
-          top: "0",
-          width: "100%",
-          height: "100%",
-          zIndex: "1",
-        },
+          position: 'absolute',
+          left: '0',
+          top: '0',
+          width: '100%',
+          height: '100%',
+          zIndex: '1'
+        }
       });
-      const powerupSvg = VDOM.createElement("img", {
+      const powerupSvg = VDOM.createElement('img', {
         src: `../assets/${powerupType}.svg`,
         style: {
-          width: "100%",
-          height: "100%",
-        },
+          width: '100%',
+          height: '100%'
+        }
       });
       powerupDiv.children.push(powerupSvg);
       tile.children.push(powerupDiv);
@@ -324,10 +373,7 @@ class GameRenderer {
   getTileClassName(tileType, col, row) {
     switch (tileType) {
       case tileMap.tileTypes.WALL:
-        return row === 0 ||
-          row === tileMap.rows - 1 ||
-          col === 0 ||
-          col === tileMap.columns - 1
+        return (row === 0 || row === tileMap.rows - 1 || col === 0 || col === tileMap.columns - 1)
           ? mapClass.BORDER_WALL_CLASS
           : mapClass.PILLAR_WALL_CLASS;
       case tileMap.tileTypes.BRICK:
@@ -336,8 +382,10 @@ class GameRenderer {
         return mapClass.EMPTY_DIV_CLASS;
       case tileMap.tileTypes.POWERUP:
         return mapClass.POWERUP_CLASS;
+      case tileMap.tileTypes.BRICK_WITH_POWERUP:
+        return mapClass.BRITTLE_BRICK_CLASS;
       default:
-        return "";
+        return '';
     }
   }
 
