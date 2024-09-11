@@ -367,7 +367,6 @@ function retriveLive(playerName, life) {
   }
 }
 
-
 export function createLifeCounter(playerName, life) {
   console.log('playerName',playerName, "life",life)
   const hearts = Array.from({ length: life }).map((_, index) =>
@@ -380,7 +379,6 @@ export function createLifeCounter(playerName, life) {
     // VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
   );
 }
-
 
 function destroySingleBrick(brickRow, brickCol) {
   const tileType = tileMap.getTile(brickCol, brickRow);

@@ -421,9 +421,13 @@ body {
     left: 0;
     width: 95%;
     height: 95%;
-    /* background-color: #fff; */
+    background-color: #fff;
     border-radius: 6px;
 }
+
+/* .empty-div{
+    background-color: #fff;
+} */
 
 .messageheader {
     height: 15%;
