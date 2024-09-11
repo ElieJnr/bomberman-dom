@@ -503,3 +503,113 @@ body {
 .messageform button img {
     width: 36px;
 }
+
+
+/*  game over css's part*/
+/* 
+#finish{
+    position: fixed;
+    bottom: 0;
+    width: 80%;
+    height: 75%;
+    color: white;
+    display: grid;
+    grid-template-rows: 25% 20%;
+}
+
+#gameover, #yourscore{
+    display: flex;
+    justify-content: center;
+}
+
+#gameover img{
+    width: 50%;
+}
+
+#yourscore img{
+    width: 15%;
+}
+
+#restartquit{
+    display: flex;
+    justify-content: center;
+    gap: 5%;
+}
+
+#restartR, #quitQ{
+    height: fit-content;
+    display: flex;
+    padding: 0.5%;
+    justify-content: center;
+}
+
+#restartR:hover, #quitQ:hover{
+    background-color: gray;
+    border-radius: 10px;
+}
+
+#myscore{
+    font-family: 'sarpanch';
+    display: flex;
+    justify-content: center;
+    font-size: xx-large;
+    height: fit-content;
+} */
+
+/* end of game over css */
+
+
+/* winner screen css */
+
+/* #youwin{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#lgbreaker{
+    display: flex;
+    justify-content: center;
+    margin-top: 5%;
+    margin-bottom: 10%;
+    width: 100%;
+}
+
+#yourtimeandscore{
+    color: white;
+    display: flex;
+    gap: 50px;
+}
+
+#ywin{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+#rq{
+    width: 50%;
+    margin-top: 10%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#shorcut{
+    position: absolute;
+    bottom: 1%;
+    right: 1%;
+}
+
+#rplay, #qquit{
+    display: flex;
+    justify-content: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 5px;
+}
+
+#rplay:hover, #qquit:hover{
+    background-color: gray;
+} */
+
+/* end of winner screen css */

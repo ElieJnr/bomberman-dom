@@ -2,7 +2,7 @@
 
 - [ ] Lorsque y'a plusieurs players à partir de 3 et l'un meurt gameover pour tout le monde
 ✔ [ ] Deux utilisateur peuvent avoir le même nom   @OusmaneSene @done(24-09-11 05:44)
-- [ ] Lorsque y'a trops de message (chat) les écritures débordent de la partie réservée  @ElieMalo
+✔ [ ] Lorsque y'a trops de message (chat) les écritures débordent de la partie réservée  @ElieMalo @done(24-09-11 10:19)
 - [ ] Logic du jeux
 - [ ] Placement des players @MbayeDiao
 - [ ] Apparence des players
