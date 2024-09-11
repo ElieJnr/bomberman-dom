@@ -42,7 +42,6 @@ export function updatePlayerAction(playerName, action, ix, iy) {
     row: ix,
     col: iy,
   };
-  console.log("playerPositions", playerPositions);
   let { row, col } = playerPositions[playerName];
   let newRow = row;
   let newCol = col;
@@ -327,6 +326,7 @@ function destroyBrick(row, col, playername) {
     if ((playerRow === row && (playerCol === col || playerCol === col - 1 || playerCol === col + 1)) ||
       (playerCol === col && (playerRow === row - 1 || playerRow === row + 1))) {
       playerLives[playerName] -= 1;
+      retriveLive(playerName, playerLives[playerName]);
       console.log(`${playerName} a été touché, il lui reste ${playerLives[playerName]} vies`);
 
       if (playerLives[playerName] <= 0) {
@@ -335,6 +335,53 @@ function destroyBrick(row, col, playername) {
     }
   }
 }
+
+function retriveLive(playerName, life) {
+  // Select the correct life counter container based on the player's name
+  const lifecounterContainer = document.querySelector(`.lifecounter-${playerName}`);
+
+  if (lifecounterContainer) {
+    // Assuming the hearts are inside a deeper div, adjust to target the actual container holding the hearts
+    const heartsContainer = lifecounterContainer.querySelector('.lifecounter');
+    
+    if (heartsContainer) {
+      const hearts = heartsContainer.querySelectorAll('img'); // Target heart images
+
+      if (hearts.length > life) {
+        const lastHeart = hearts[hearts.length - 1];
+
+        if (lastHeart && heartsContainer.contains(lastHeart)) {
+          console.log("lifecounter", heartsContainer, "lastHeart", lastHeart);
+
+          heartsContainer.removeChild(lastHeart);  // Remove the heart from the container
+        } else {
+          console.warn('The heart to be removed is not a child of the hearts container.');
+        }
+      } else {
+        console.warn(`Hearts count (${hearts.length}) does not exceed life (${life}). No heart to remove.`);
+      }
+    } else {
+      console.warn('Hearts container not found within the lifecounter.');
+    }
+  } else {
+    console.warn(`Life counter for player ${playerName} not found.`);
+  }
+}
+
+
+export function createLifeCounter(playerName, life) {
+  console.log('playerName',playerName, "life",life)
+  const hearts = Array.from({ length: life }).map((_, index) =>
+    VDOM.createElement('img', { class: `lifecounter-${playerName}-${index}`, src: '../assets/heart.svg', alt: 'heart life' })
+  );
+  return VDOM.createElement('div', { class: `gamerightpart lifecounter-${playerName}` },
+    VDOM.createElement('div', { class: 'lifecounter' },
+      ...hearts
+    ),
+    // VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
+  );
+}
+
 
 function destroySingleBrick(brickRow, brickCol) {
   const tileType = tileMap.getTile(brickCol, brickRow);

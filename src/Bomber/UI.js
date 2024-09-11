@@ -17,11 +17,11 @@ export function createPowerUpContainer() {
   );
 }
 
-export function createLifeCounter() {
-  return VDOM.createElement('div', { class: 'gamerightpart' },
-    VDOM.createElement('div', { class: 'lifecounter' },
-      VDOM.createElement('img', { src: '../assets/lifecounter.svg', alt: '' })
-    ),
-    VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
-  );
-}
+// export function createLifeCounter() {
+//   return VDOM.createElement('div', { class: 'gamerightpart' },
+//     VDOM.createElement('div', { class: 'lifecounter' },
+//       VDOM.createElement('img', { src: '../assets/heart.svg', alt: 'heart life' })
+//     ),
+//     VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
+//   );
+// }

@@ -23,7 +23,6 @@ export function setupWebSocket() {
 }
 
 function handleWebSocketMessage(data) {
-  console.log("datatype", data.type);
 
   switch (data.type) {
     case 'pseudoUsed':
@@ -53,7 +52,8 @@ function handleWebSocketMessage(data) {
       startPreparation();
       break;
     case 'startGame':
-      startGame(objetOfPlayer);
+      let life = 3;
+      startGame(life ,objetOfPlayer);
       break;
     case 'notEnoughPlayers':
       displayMessage('Not enough players to start the game.', false);
