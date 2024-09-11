@@ -70,10 +70,16 @@ body {
     background: transparent;
     border: none;
     margin: 100px 100px 90px 50px;
-    width: calc(100% - 20px);
+    width: calc(80% - 20px);
     outline: none;
     color: black;
     font-size: large;
+}
+
+#inputContainer ::placeholder {
+    color: #000000;
+    font-family: "Press Start 2P";
+    font-size: 16px;
 }
 
 #betterxp,
