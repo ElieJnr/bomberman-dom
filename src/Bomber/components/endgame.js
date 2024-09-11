@@ -12,4 +12,5 @@ export function createEndScreen(imageFileName) {
     );
 }
 
-const endScreen = createEndScreen('gameover.svg');
+const gameover = createEndScreen('gameover.svg');
+const youthewinner = createEndScreen('youarethewinner.svg');
