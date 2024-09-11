@@ -218,17 +218,16 @@ function CollisionPowerup(row, col, playername) {
     }
   }
 }
-
 function placeBomb(row, col, playername) {
   const bombElement = VDOM.createElement("div", {
-    class: "bomb",
-    style: {
-      position: "absolute",
-      left: `${col * tileMap.tileSize}px`,
-      top: `${row * tileMap.tileSize}px`,
-      width: `${tileMap.tileSize}px`,
-      height: `${tileMap.tileSize}px`,
-    },
+      class: "bomb",
+      style: {
+          position: "absolute",
+          left: `${col * tileMap.tileSize}px`,
+          top: `${row * tileMap.tileSize}px`,
+          width: `${tileMap.tileSize}px`,
+          height: `${tileMap.tileSize}px`,
+      },
   });
   document.getElementById("mapDiv").appendChild(bombElement.render());
   bombElements.push(bombElement);
