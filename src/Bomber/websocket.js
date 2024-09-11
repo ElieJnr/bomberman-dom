@@ -6,6 +6,7 @@ import { createCountdown, requestFullScreen } from './utils.js';
 import VDOM from '../core/dom.mjs';
 import { ws } from './globals.js';
 import { allpos } from './components/maps.js';
+import { keydownHandler } from './components/PlayerForm.js';
 
 export let seconds;
 export let playerCount;
@@ -25,6 +26,17 @@ function handleWebSocketMessage(data) {
   console.log("datatype", data.type);
 
   switch (data.type) {
+    case 'pseudoUsed':
+      let errorName = VDOM.createElement("div", { id: "errorName", style: "color:red;margin-top:10px;font-size:x-large;" }, "this pseudo is already used, please change it");
+
+      if (!document.getElementById("errorName")) {
+        VDOM.appendChildToElementById("app", errorName);
+        setTimeout(() => (
+          document.getElementById("errorName").remove()
+        ), 2000);
+      }
+      document.addEventListener("keydown", keydownHandler);
+      break
     case 'message':
       displayMessage(data.name, data.content);
       break;

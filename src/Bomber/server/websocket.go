@@ -47,6 +47,11 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 
 		switch msg.Type {
 		case "join":
+			if contains(playerOrder,msg.Name){
+				conn.WriteJSON(Message{Type: "pseudoUsed"})
+				break
+			}
+
 			HandleJoin(conn, msg.Name)
 		case "logout":
 			HandleLogout(conn)
@@ -175,4 +180,13 @@ func ResetGame() {
     gameStarted = false
 
     fmt.Println("Game has been reset and is ready for new players.") 
+}
+
+func contains(arr []string, target string) bool {
+    for _, element := range arr {
+        if element == target {
+            return true // Si l'élément est trouvé, on retourne true
+        }
+    }
+    return false // Si l'élément n'est pas trouvé, on retourne false
 }
