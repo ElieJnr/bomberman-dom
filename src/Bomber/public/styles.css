@@ -619,3 +619,12 @@ body {
 } */
 
 /* end of winner screen css */
+
+#endScreen{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 240px;
+}
