@@ -7,6 +7,8 @@ const bombElements = [];
 var boxplaced = {};
 var powerUp = {};
 var whichpowerup;
+var speed;
+var lastmove = {};
 export const playerLives = {};
 const actionThrottleTime = 100;
 const lastActionTime = {};
@@ -50,11 +52,29 @@ export function updatePlayerAction(playerName, action, ix, iy) {
   }
 
   // Movement logic
+
+
+
+  if (whichpowerup === "speed") {
+    speed = 2;
+    setTimeout(() => {
+      powerUp[playerName] = false;
+      whichpowerup = "";
+      speed = 1;
+    }, 5000);
+  } else {
+    speed = 1;
+  }
+
+
+
+
   switch (action) {
     case "move_left":
       if (canPerformAction(playerName)) {
-        newCol = Math.max(1, col - 1);
+        newCol = Math.max(1, col - speed);
         CollisionPowerup(newRow, newCol, playerName);
+        lastmove = "L"
         console.log("newRow", newRow, "newCol", newCol);
       } else {
         console.log(`${playerName} is moving too fast. Please wait.`);
@@ -63,8 +83,9 @@ export function updatePlayerAction(playerName, action, ix, iy) {
 
     case "move_right":
       if (canPerformAction(playerName)) {
-        newCol = Math.min(tileMap.columns - 2, col + 1);
+        newCol = Math.min(tileMap.columns - 2, col + speed);
         CollisionPowerup(newRow, newCol, playerName);
+        lastmove = "R"
       } else {
         console.log(`${playerName} is moving too fast. Please wait.`);
       }
@@ -72,8 +93,9 @@ export function updatePlayerAction(playerName, action, ix, iy) {
 
     case "move_up":
       if (canPerformAction(playerName)) {
-        newRow = Math.max(1, row - 1);
+        newRow = Math.max(1, row - speed);
         CollisionPowerup(newRow, newCol, playerName);
+        lastmove = "U"
       } else {
         console.log(`${playerName} is moving too fast. Please wait.`);
       }
@@ -81,8 +103,9 @@ export function updatePlayerAction(playerName, action, ix, iy) {
 
     case "move_down":
       if (canPerformAction(playerName)) {
-        newRow = Math.min(tileMap.rows - 2, row + 1);
+        newRow = Math.min(tileMap.rows - 2, row + speed);
         CollisionPowerup(newRow, newCol, playerName);
+        lastmove = "D"
       } else {
         console.log(`${playerName} is moving too fast. Please wait.`);
       }
@@ -112,17 +135,63 @@ export function updatePlayerAction(playerName, action, ix, iy) {
       break;
   }
 
-  // Update player position if valid
-  if (canMoveTo(newRow, newCol)) {
-    playerPositions[playerName] = { row: newRow, col: newCol };
+  if (speed === 1) {
+    if (canMoveTo(newRow, newCol)) {
+      playerPositions[playerName] = { row: newRow, col: newCol };
 
-    // Update player element's position
-    const playerElement = document.getElementById(`player-${playerName}`);
-    if (playerElement) {
-      playerElement.style.left = `${newCol * tileMap.tileSize}px`;
-      playerElement.style.top = `${newRow * tileMap.tileSize}px`;
+      const playerElement = document.getElementById(`player-${playerName}`);
+      if (playerElement) {
+        playerElement.style.left = `${newCol * tileMap.tileSize}px`;
+        playerElement.style.top = `${newRow * tileMap.tileSize}px`;
+      }
+    }
+  } else if (speed === 2) {
+    // const newRowBy2 = row + (newRow > row ? 2 : -2); 
+    // const newColBy2 = col + (newCol > col ? 2 : -2);  
+    console.log("c'ant move by 2");
+    var tempcol, temprow
+
+    if (lastmove == 'D' ){
+      temprow = newRow - 1
+      tempcol = newCol 
+    } else if (lastmove == "U") {
+      temprow = newRow + 1
+      tempcol = newCol
+    } else if (lastmove == "L"){
+      tempcol = newCol + 1
+      temprow = newRow
+    }else if (lastmove == "R"){
+      tempcol = newCol - 1
+      temprow = newRow
+    }
+
+    console.log("xxxxx",tempcol, temprow);
+    
+
+    if (canMoveTo(newRow, newCol) && canMoveTo(temprow, tempcol)) {
+      console.log("2");
+
+      playerPositions[playerName] = { row: newRow, col: newCol };
+
+      const playerElement = document.getElementById(`player-${playerName}`);
+      if (playerElement) {
+        playerElement.style.left = `${newCol * tileMap.tileSize}px`;
+        playerElement.style.top = `${newRow * tileMap.tileSize}px`;
+      }
+    } else if (canMoveTo(temprow , tempcol)) {
+        console.log("1");
+
+        playerPositions[playerName] = { row: temprow, col: tempcol };
+
+        const playerElement = document.getElementById(`player-${playerName}`);
+        if (playerElement) {
+          playerElement.style.left = `${(tempcol) * tileMap.tileSize}px`;
+          playerElement.style.top = `${(temprow) * tileMap.tileSize}px`;
+        }
+      
     }
   }
+
 }
 
 function canMoveTo(row, col) {
@@ -189,12 +258,23 @@ export function removePlayer(playerName) {
 }
 
 function destroyBrick(row, col, playername) {
-  const directions = [
-    { rowOffset: -1, colOffset: 0 }, // Up
-    { rowOffset: 1, colOffset: 0 },  // Down
-    { rowOffset: 0, colOffset: -1 }, // Left
-    { rowOffset: 0, colOffset: 1 },  // Right
-  ];
+  var directions = {};
+  if (powerUp[playername] && whichpowerup == "flame") {
+    directions = [
+      { rowOffset: -2, colOffset: 0 }, // Up
+      { rowOffset: 2, colOffset: 0 },  // Down
+      { rowOffset: 0, colOffset: -2 }, // Left
+      { rowOffset: 0, colOffset: 2 },  // Right
+    ];
+
+  } else {
+    directions = [
+      { rowOffset: -1, colOffset: 0 }, // Up
+      { rowOffset: 1, colOffset: 0 },  // Down
+      { rowOffset: 0, colOffset: -1 }, // Left
+      { rowOffset: 0, colOffset: 1 },  // Right
+    ];
+  }
 
   // Destroy the brick at the center of the explosion
   destroySingleBrick(row, col);
@@ -207,7 +287,37 @@ function destroyBrick(row, col, playername) {
     if (newRow >= 0 && newRow < tileMap.rows && newCol >= 0 && newCol < tileMap.columns) {
       destroySingleBrick(newRow, newCol);
     }
-  });
+
+    if (Math.abs(direction.rowOffset) === 2 || Math.abs(direction.colOffset) === 2) {
+      // Check for adjacent tiles in the extended direction
+      for (let offset = 1; offset <= 2; offset++) {
+        const extendedRow = row + (direction.rowOffset / 2) * offset;
+        const extendedCol = col + (direction.colOffset / 2) * offset;
+
+
+        // Ensure the extended coordinates are within map boundaries
+        if (extendedRow >= 0 && extendedRow < tileMap.map.length && extendedCol >= 0 && extendedCol < tileMap.map[0].length) {
+          const extendedTileType = tileMap.getTile(extendedCol, extendedRow);
+          console.log("this is extendedtiletype", extendedTileType);
+
+          if (extendedTileType === tileMap.tileTypes.BRICK) {
+            tileMap.map[extendedRow][extendedCol] = tileMap.tileTypes.EMPTY;
+            const extendedTileDiv = document.getElementById(`${mapClass.BRITTLE_BRICK_CLASS}-${extendedRow}-${extendedCol}`);
+            if (extendedTileDiv) {
+              extendedTileDiv.remove();
+            }
+
+          } else if (extendedTileType === tileMap.tileTypes.WALL) {
+            break;
+            break; // Exit the inner loop, continue with the next direction
+          }
+        }
+      }
+      powerUp[playername] = false;
+    }
+  })
+
+    ;
 
   // Check collisions with players
   for (const playerName in playerPositions) {
