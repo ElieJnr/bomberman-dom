@@ -376,7 +376,7 @@ export function createLifeCounter(playerName, life) {
     VDOM.createElement('img', { class: `lifecounter-${playerName}-${index}`, src: '../assets/heart.svg', alt: 'heart life' })
   );
   return VDOM.createElement('div', { class: `gamerightpart lifecounter-${playerName}` },
-    VDOM.createElement('div', { class: 'lifecounter' },
+    VDOM.createElement('div', { class: 'lifecounter' },playerName,
       ...hearts
     ),
   );

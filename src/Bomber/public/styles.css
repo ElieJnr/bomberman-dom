@@ -391,7 +391,8 @@ body {
 }
 
 .lifecounter img {
-    width: 15px;
+    width: 10px;
+    margin-left: 10px;
 }
 
 .gamerightpart {

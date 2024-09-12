@@ -149,7 +149,7 @@ func StartWaitingTimer() {
 				}
 			})
 		} else {
-			RemoveRoom()
+			// RemoveRoom()
 		}
 	})
 }
