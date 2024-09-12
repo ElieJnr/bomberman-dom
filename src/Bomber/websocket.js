@@ -57,7 +57,7 @@ function handleWebSocketMessage(data) {
       AllPlayerInfo = data.playerOrder      
       startPreparation(data);
       break;
-    case 'gameStarted':
+    case 'gameStarting':
       displayGameStartedMessage(data.content);
       break;
     case 'gameEnded':

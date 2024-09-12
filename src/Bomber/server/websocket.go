@@ -16,26 +16,27 @@ type Player struct {
 }
 
 type Room struct {
-	Players          map[string]*Player
-	PlayerCount      int
-	MaxPlayers       int
-	WaitingTime      time.Duration
-	CountdownTime    time.Duration
-	CountdownStarted bool
-	GameStarted      bool
-	GameOver         bool
-	mu               sync.Mutex
+	Players             map[string]*Player
+	PlayerCount         int
+	MaxPlayers          int
+	WaitingTime         time.Duration
+	CountdownTime       time.Duration
+	CountdownStarted    bool
+	GameStarted         bool
+	GameOver            bool
+	WaitingTimerStarted bool
+	mu                  sync.Mutex
 }
 
 var (
-	upgrader      = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
-	room          = &Room{
+	upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+	room     = &Room{
 		Players:       make(map[string]*Player),
 		MaxPlayers:    4,
 		WaitingTime:   20 * time.Second,
 		CountdownTime: 10 * time.Second,
 	}
-	broadcast     = make(chan Message)
+	broadcast = make(chan Message)
 )
 
 type Message struct {

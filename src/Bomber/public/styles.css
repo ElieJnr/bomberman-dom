@@ -390,9 +390,15 @@ body {
     width: 300px;
 }
 
+
 .lifecounter img {
     width: 10px;
     margin-left: 10px;
+}
+
+.playerlife{
+    font-size: 15px;
+    /* margin-right: 10px; */
 }
 
 .gamerightpart {

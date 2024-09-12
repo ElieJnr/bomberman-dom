@@ -59,7 +59,6 @@ func SendPingMessages(conn *websocket.Conn, room *Room) {
 }
 
 func handleMessageFromClients(msg Message, conn *websocket.Conn) {
-	fmt.Println("handleMessageFromClients", msg.Type)
 	switch msg.Type {
 	case "join":
 		playerOrder := make([]Player, 0, len(room.Players))
@@ -81,6 +80,9 @@ func handleMessageFromClients(msg Message, conn *websocket.Conn) {
 		} else {
 			fmt.Printf("Player %s does not exist in the room\n", msg.Name)
 		}
+	case "action":
+		fmt.Println("llllllllllllle", msg)
+		SendMessageToClients(msg, room)
 	default:
 		SendMessageToClients(msg, room)
 	}
@@ -107,9 +109,11 @@ func HandleJoin(conn *websocket.Conn, name string) {
 
 		BroadcastPlayerJoined(name)
 
-		if room.PlayerCount >= 4 && !room.CountdownStarted {
+		if room.PlayerCount > 4 && !room.CountdownStarted {
+			room.CountdownStarted = true
 			go StartCountdown()
-		} else if room.PlayerCount >= 2 && !room.CountdownStarted {
+		} else if room.PlayerCount >= 2 && !room.CountdownStarted && !room.WaitingTimerStarted {
+			room.WaitingTimerStarted = true
 			go StartWaitingTimer()
 		}
 	}
@@ -130,7 +134,7 @@ func StartWaitingTimer() {
 
 		if room.PlayerCount >= 4 {
 			go StartCountdown()
-		} else if room.PlayerCount >= 2 && !room.CountdownStarted {
+		} else if room.PlayerCount >= 2 {
 			room.CountdownStarted = true
 			broadcast <- Message{
 				Type:        "startPreparation",
@@ -158,18 +162,42 @@ func StartCountdown() {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
-	room.CountdownStarted = true
-	broadcast <- Message{
-		Type:    "gameStarting",
-		Content: "Game is starting in 10 seconds!",
+	playerOrder := make([]Player, 0, len(room.Players))
+	for _, player := range room.Players {
+		playerOrder = append(playerOrder, Player{
+			Name:  player.Name,
+			Lives: player.Lives,
+		})
 	}
+
+	room.CountdownStarted = true
+	for _, player := range room.Players {
+		player.Connection.WriteJSON(Message{
+			Type:        "startPreparation",
+			Name:        player.Name,
+			Content:     "Game is starting in 10 seconds!",
+			Seconds:     int(room.CountdownTime.Seconds()),
+			PlayerCount: room.PlayerCount,
+			PlayerOrder: playerOrder,
+		})
+	}
+
 	time.AfterFunc(room.CountdownTime, func() {
 		room.mu.Lock()
 		defer room.mu.Unlock()
 
 		if room.PlayerCount >= 2 {
 			room.GameStarted = true
-			broadcast <- Message{Type: "gameStarted", Content: "Game is starting!"}
+			for _, player := range room.Players {
+				player.Connection.WriteJSON(Message{
+					Type:        "gameStarted",
+					Name:        player.Name,
+					Content:     "The game is now starting!",
+					Seconds:     0,
+					PlayerCount: room.PlayerCount,
+					PlayerOrder: playerOrder,
+				})
+			}
 		} else {
 			RemoveRoom()
 		}
@@ -265,8 +293,8 @@ func RemoveRoom() {
 func contains(arr []Player, target string) bool {
 	for _, element := range arr {
 		if element.Name == target {
-			return true // Si l'élément est trouvé, on retourne true
+			return true
 		}
 	}
-	return false // Si l'élément n'est pas trouvé, on retourne false
+	return false
 }
