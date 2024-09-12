@@ -62,9 +62,19 @@ func SendPingMessages(conn *websocket.Conn) {
 }
 
 func handleMessage(msg Message, conn *websocket.Conn) {
-	fmt.Println("msg depuis front", msg)
 	switch msg.Type {
 	case "join":
+		playerOrder := make([]Player, 0, len(room.Players))
+		for _, player := range room.Players {
+			playerOrder = append(playerOrder, Player{
+				Name:  player.Name,
+			})
+		}
+
+		if contains(playerOrder,msg.Name){
+			conn.WriteJSON(Message{Type: "pseudoUsed"})
+			break
+		}
 		HandleJoin(conn, msg.Name)
 	case "collision":
 		HandleCollision(msg.Name)
@@ -198,7 +208,7 @@ func RemovePlayer(player *Player) {
 				fmt.Println("Error sending win message:", err)
 			}
 		}
-		RemoveRoom()
+		EndGame(room)
 	} else if room.PlayerCount < 2 {
 		room.CountdownStarted = false
 	}
@@ -245,10 +255,9 @@ func HandleCollision(name string) {
 			Name:    name,
 			Content: "You have lost all your lives!",
 		}
-		if room.PlayerCount > 1 {
-			return
+		if room.PlayerCount == 1 {
+			EndGame(room)
 		}
-		EndGame(room)
 	} else {
 		broadcast <- Message{
 			Type:  "updateLives",
@@ -269,4 +278,13 @@ func RemoveRoom() {
 		WaitingTime:   20 * time.Second,
 		CountdownTime: 10 * time.Second,
 	}
+}
+
+func contains(arr []Player, target string) bool {
+    for _, element := range arr {
+        if element.Name == target {
+            return true // Si l'élément est trouvé, on retourne true
+        }
+    }
+    return false // Si l'élément n'est pas trouvé, on retourne false
 }

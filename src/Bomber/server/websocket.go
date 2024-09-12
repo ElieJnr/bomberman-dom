@@ -73,9 +73,28 @@ func EndGame(room *Room) {
 
 	if !room.GameOver {
 		room.GameOver = true
-		broadcast <- Message{
-			Type:    "gameOver",
-			Content: "The game has ended!",
+
+		var winner *Player
+		for _, player := range room.Players {
+			if player.Lives > 0 {
+				if winner != nil {
+					winner = nil
+					break
+				}
+				winner = player
+			}
+		}
+
+		if winner != nil {
+			broadcast <- Message{
+				Type:    "gameOver",
+				Content: fmt.Sprintf("The game has ended! %s is the winner!", winner.Name),
+			}
+		} else {
+			broadcast <- Message{
+				Type:    "gameOver",
+				Content: "The game has ended! No winners.",
+			}
 		}
 	}
 }

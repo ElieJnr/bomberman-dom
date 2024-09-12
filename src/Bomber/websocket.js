@@ -32,7 +32,7 @@ function handleWebSocketMessage(data) {
   switch (data.type) {
     case 'pseudoUsed':
       HandlePseudo();
-      break
+      break;
     case 'message':
       displayMessage(data.name, data.content);
       break;
@@ -49,13 +49,10 @@ function handleWebSocketMessage(data) {
       startPreparation(data);
       break;
     case 'gameStarted':
-      alert(data.content);
-      ws.close();
+      displayGameStartedMessage(data.content);
       break;
     case 'gameEnded':
-      alert(data.content);
-      ws.close();
-      window.location.reload();
+      displayGameEndedMessage(data.content);
       break;
     case 'error':
       console.warn(data.content);
@@ -63,6 +60,22 @@ function handleWebSocketMessage(data) {
       break;
     default:
       console.error('Unknown WebSocket message type:', data.type);
+  }
+}
+
+function displayGameStartedMessage(message) {
+  alert(message);
+}
+
+function displayGameEndedMessage(message) {
+  const endGameMessage = VDOM.createElement("div", { id: "endGameMessage", style: "color:blue;margin-top:10px;font-size:x-large;" }, message);
+
+  if (!document.getElementById("endGameMessage")) {
+    VDOM.appendChildToElementById("app", endGameMessage);
+    setTimeout(() => {
+      document.getElementById("endGameMessage").remove();
+      window.location.reload();
+    }, 5000); 
   }
 }
 

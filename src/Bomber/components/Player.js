@@ -32,7 +32,6 @@ function canPerformAction(playerName) {
 export function updatePlayerAction(playerName, action, ix, iy) {
   console.log(`${playerName} action: ${action} ix ${ix} yi ${iy}`);
   // let playerElement = playerElements[playerName];
-
   // Initialize player states if not already set
   if (!boxplaced.hasOwnProperty(playerName)) boxplaced[playerName] = 1;
   if (!powerUp.hasOwnProperty(playerName)) powerUp[playerName] = false;
@@ -50,10 +49,6 @@ export function updatePlayerAction(playerName, action, ix, iy) {
     boxplaced[playerName] = 2;
   }
 
-  // Movement logic
-
-
-
   if (whichpowerup === "speed") {
     speed = 2;
     setTimeout(() => {
@@ -64,10 +59,7 @@ export function updatePlayerAction(playerName, action, ix, iy) {
   } else {
     speed = 1;
   }
-
-
-
-
+  
   switch (action) {
     case "move_left":
       if (canPerformAction(playerName)) {
@@ -242,18 +234,21 @@ function placeBomb(row, col, playername) {
 
 export function removePlayer(playerName) {
   const playerElement = document.getElementById(`player-${playerName}`);
-  var map = document.getElementById("mapDiv");
-  map.removeChild(playerElement);
-  alert("GameOver");
-  // const playerVDOM = playerElements[playerName];
-  // if (playerVDOM) {
-  //     const playerElement = playerVDOM.render();
-  //     // Vous pouvez ajouter ici la logique pour retirer visuellement le joueur
-  //     playerElement.style.display = 'none';
-  //     delete playerElements[playerName];
-  //     delete playerPositions[playerName];
-  // }
+  const map = document.getElementById("mapDiv");
+
+  if (playerElement) {
+    map.removeChild(playerElement);
+
+    delete playerElements[playerName];
+    delete playerPositions[playerName];
+    delete playerLives[playerName];
+    
+    alert(`${playerName} has been defeated. Game Over!`);
+  } else {
+    console.warn(`Player element with name ${playerName} not found.`);
+  }
 }
+
 
 function destroyBrick(row, col, playername) {
   var directions = {};
