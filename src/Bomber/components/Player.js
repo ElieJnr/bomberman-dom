@@ -1,4 +1,5 @@
 import VDOM from "../../core/dom.mjs";
+import { ws } from "../globals.js";
 import { tileMap, mapClass } from "./maps.js";
 
 const playerElements = {};
@@ -31,7 +32,6 @@ function canPerformAction(playerName) {
 
 export function updatePlayerAction(playerName, action, ix, iy) {
   console.log(`${playerName} action: ${action} ix ${ix} yi ${iy}`);
-  // let playerElement = playerElements[playerName];
   // Initialize player states if not already set
   if (!boxplaced.hasOwnProperty(playerName)) boxplaced[playerName] = 1;
   if (!powerUp.hasOwnProperty(playerName)) powerUp[playerName] = false;
@@ -210,6 +210,7 @@ function CollisionPowerup(row, col, playername) {
     }
   }
 }
+
 function placeBomb(row, col, playername) {
   const bombElement = VDOM.createElement("div", {
     class: "bomb",
@@ -242,8 +243,17 @@ export function removePlayer(playerName) {
     delete playerElements[playerName];
     delete playerPositions[playerName];
     delete playerLives[playerName];
-    
-    alert(`${playerName} has been defeated. Game Over!`);
+
+    const message = {
+      type: 'playerDefeated',
+      name: playerName,
+    };
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(message));
+    } else {
+      console.warn('WebSocket connection is not open.');
+    }
   } else {
     console.warn(`Player element with name ${playerName} not found.`);
   }

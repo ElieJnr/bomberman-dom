@@ -9,8 +9,8 @@ import { objetOfPlayer } from "./websocket.js";
 export let life = [];
 
 export function startGame(life, objetOfPlayer) {
-  console.log('Starting game with life:', life);
-  console.log('Players:', objetOfPlayer);
+  // console.log('Starting game with life:', life);
+  // console.log('Players:', objetOfPlayer);
   MountComponent('#app', createGame);
   VDOM.appendChildToElementById('part2', createPowerUpContainer());
   objetOfPlayer.forEach((player, index) => {
@@ -20,8 +20,7 @@ export function startGame(life, objetOfPlayer) {
 }
 
 export function startPreparation(data) {
-  console.log('startPreparation:', data);
-
+  // console.log('startPreparation:', data);
   life = data.playerOrder.map(player => player.Lives);
   const timer = document.getElementById("timer");
   createCountdown(10, timer, " seconds left before start", () => {

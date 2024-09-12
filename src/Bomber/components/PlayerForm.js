@@ -44,7 +44,6 @@ export const keydownHandler = (event) => {
             ws.send(JSON.stringify({ type: 'join', name: playerName }));
             // eventHandler.trigger("enterkey", "");
 
-            // Supprimer l'écouteur d'événement après envoi du message
             document.removeEventListener("keydown", keydownHandler);
         } else {
             let errorName = VDOM.createElement("div", { id: "errorName", style: "color:red;margin-top:10px;font-size:x-large;" }, "Please use a valid pseudo");

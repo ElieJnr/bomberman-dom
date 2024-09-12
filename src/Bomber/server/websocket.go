@@ -60,7 +60,7 @@ func SendMessageToClients(msg Message, room *Room) {
 	for _, player := range room.Players {
 		if err := player.Connection.WriteJSON(msg); err != nil {
 			fmt.Println("Error sending message to client:", err)
-			handleClientDisconnection(player.Connection)
+			handleClientDisconnection(player.Connection, room)
 		} else {
 			fmt.Println("Message sent to client:", msg)
 		}

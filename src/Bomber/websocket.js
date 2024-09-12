@@ -11,18 +11,26 @@ import { keydownHandler } from './components/PlayerForm.js';
 export let seconds;
 export let playerCount;
 export let objetOfPlayer = [];
+export let AllPlayerInfo = [];
 
 export function setupWebSocket() {
   ws.onopen = () => {
     console.log('WebSocket connection established');
   };
 
-  ws.onerror = () => console.log('WebSocket error');
+  ws.onerror = (error) => {
+    console.error('WebSocket error:', error);
+  };
 
   ws.onmessage = (event) => {
     console.log("Received message:", event.data);
     const data = JSON.parse(event.data);
     handleWebSocketMessage(data);
+  };
+
+  ws.onclose = (event) => {
+    console.log('WebSocket connection closed', event);
+    setTimeout(setupWebSocket, 5000); 
   };
 }
 
@@ -46,6 +54,7 @@ function handleWebSocketMessage(data) {
       handlePlayerDisconnected(data);
       break;
     case 'startPreparation':
+      AllPlayerInfo = data.playerOrder      
       startPreparation(data);
       break;
     case 'gameStarted':
@@ -94,6 +103,11 @@ function HandlePseudo() {
 function handlePlayerAction(data) {
   console.log("Received player action:", data);
   const playerPosition = allpos[data.name];
+  console.log("data.name", data.name);
+  console.log("data.action", data.action);
+  console.log("data.action", playerPosition.x);
+  console.log("data.action", playerPosition.y);
+  
   updatePlayerAction(data.name, data.action, playerPosition.x, playerPosition.y);
 }
 

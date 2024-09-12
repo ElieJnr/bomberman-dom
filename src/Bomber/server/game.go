@@ -18,19 +18,19 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Client connected")
 
-	go SendPingMessages(conn)
+	go SendPingMessages(conn, room)
 
 	for {
 		var msg Message
 		err := conn.ReadJSON(&msg)
 		if err != nil {
 			if websocket.IsCloseError(err, websocket.CloseGoingAway) {
-				handleClientDisconnection(conn)
+				handleClientDisconnection(conn, room)
 				break
 			}
 			fmt.Println("Error reading message:", err)
-			handleClientDisconnection(conn)
-			break
+			handleClientDisconnection(conn, room)
+			continue
 		}
 
 		if msg.Type == "" {
@@ -38,46 +38,54 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		handleMessage(msg, conn)
+		handleMessageFromClients(msg, conn)
 	}
 }
 
-func SendPingMessages(conn *websocket.Conn) {
+func SendPingMessages(conn *websocket.Conn, room *Room) {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
-			if conn == nil {
-				return
-			}
 			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				fmt.Printf("Error sending ping message: %v\n", err)
-				handleClientDisconnection(conn)
+				handleClientDisconnection(conn, room)
 				return
 			}
 		}
 	}
 }
 
-func handleMessage(msg Message, conn *websocket.Conn) {
+func handleMessageFromClients(msg Message, conn *websocket.Conn) {
+	fmt.Println("handleMessageFromClients", msg.Type)
 	switch msg.Type {
 	case "join":
 		playerOrder := make([]Player, 0, len(room.Players))
 		for _, player := range room.Players {
 			playerOrder = append(playerOrder, Player{
-				Name:  player.Name,
+				Name: player.Name,
 			})
 		}
 
-		if contains(playerOrder,msg.Name){
+		if contains(playerOrder, msg.Name) {
 			conn.WriteJSON(Message{Type: "pseudoUsed"})
 			break
 		}
 		HandleJoin(conn, msg.Name)
-	case "collision":
-		HandleCollision(msg.Name)
+	case "playerDefeated":
+		player, exists := room.Players[msg.Name]
+		if exists {
+			handlePlayerDefeated(player, room)
+		} else {
+			fmt.Printf("Player %s does not exist in the room\n", msg.Name)
+		}
+	case "action":
+	fmt.Println("msgAction", msg)
+
+		// conn.WriteJSON(Message{Type: "action"})
+		conn.WriteJSON(msg)
 	default:
 		SendMessageToClients(msg, room)
 	}
@@ -173,27 +181,20 @@ func StartCountdown() {
 	})
 }
 
-func handleClientDisconnection(conn *websocket.Conn) {
+func handleClientDisconnection(conn *websocket.Conn, room *Room) {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
-	for name, player := range room.Players {
+	for _, player := range room.Players {
 		if player.Connection == conn {
-			RemovePlayer(player)
-			broadcast <- Message{
-				Type:        "playerDisconnected",
-				Name:        name,
-				PlayerCount: room.PlayerCount,
-			}
+			RemovePlayer(player, room)
 			return
 		}
 	}
 }
 
-func RemovePlayer(player *Player) {
+func RemovePlayer(player *Player, room *Room) {
 	fmt.Printf("Player %s disconnected\n", player.Name)
-	room.mu.Lock()
-	defer room.mu.Unlock()
 
 	delete(room.Players, player.Name)
 	room.PlayerCount--
@@ -209,15 +210,30 @@ func RemovePlayer(player *Player) {
 			}
 		}
 		EndGame(room)
-	} else if room.PlayerCount < 2 {
+	} else if room.PlayerCount > 1 {
+		broadcastMessage := Message{
+			Type:        "playerDisconnected",
+			Name:        player.Name,
+			PlayerCount: room.PlayerCount,
+			Content:     fmt.Sprintf("Player %s has been defeated. %d players remaining.", player.Name, room.PlayerCount),
+		}
+		BroadcastToRoom(room, broadcastMessage)
+	} else {
 		room.CountdownStarted = false
 	}
+}
 
-	broadcast <- Message{
-		Type:        "playerDisconnected",
-		Name:        player.Name,
-		PlayerCount: room.PlayerCount,
+func BroadcastToRoom(room *Room, message Message) {
+	for _, player := range room.Players {
+		err := player.Connection.WriteJSON(message)
+		if err != nil {
+			fmt.Printf("Error sending message to player %s: %v\n", player.Name, err)
+		}
 	}
+}
+
+func handlePlayerDefeated(player *Player, room *Room) {
+	RemovePlayer(player, room)
 }
 
 func BroadcastPlayerJoined(name string) {
@@ -238,35 +254,6 @@ func BroadcastPlayerJoined(name string) {
 	}
 }
 
-func HandleCollision(name string) {
-	room.mu.Lock()
-	defer room.mu.Unlock()
-
-	player, exists := room.Players[name]
-	if !exists {
-		return
-	}
-
-	player.Lives--
-	if player.Lives <= 0 {
-		RemovePlayer(player)
-		broadcast <- Message{
-			Type:    "playerEliminated",
-			Name:    name,
-			Content: "You have lost all your lives!",
-		}
-		if room.PlayerCount == 1 {
-			EndGame(room)
-		}
-	} else {
-		broadcast <- Message{
-			Type:  "updateLives",
-			Name:  name,
-			Lives: player.Lives,
-		}
-	}
-}
-
 func CloseConn(conn *websocket.Conn) {
 	conn.Close()
 }
@@ -281,10 +268,10 @@ func RemoveRoom() {
 }
 
 func contains(arr []Player, target string) bool {
-    for _, element := range arr {
-        if element.Name == target {
-            return true // Si l'élément est trouvé, on retourne true
-        }
-    }
-    return false // Si l'élément n'est pas trouvé, on retourne false
+	for _, element := range arr {
+		if element.Name == target {
+			return true // Si l'élément est trouvé, on retourne true
+		}
+	}
+	return false // Si l'élément n'est pas trouvé, on retourne false
 }

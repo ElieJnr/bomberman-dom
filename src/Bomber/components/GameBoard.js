@@ -17,16 +17,8 @@ export function createGame() {
     );
 }
 
-function handleLogout() {
-    ws.send(JSON.stringify({ type: 'logout', name: playerName }));
-
-    MountComponent('#app', HomeComponent);
-    window.location.reload()
-
-    ws.close();
-}
-
 function handleKeyDown(event) {
+    
     const action = getActionFromKey(event.key);
     if (action) {
         ws.send(JSON.stringify({ type: 'action', name: playerName, action: action }));
