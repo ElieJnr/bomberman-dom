@@ -89,19 +89,19 @@ body {
     bottom: 8px;
 }
 
-.bomb {
+/* .bomb { */
     /* width: 16px; */
     /* height: 16px; */
-    position: absolute;
-    background-color: #000000;
-    border-radius: 50%;
+    /* position: absolute; */
+    /* background-color: #000000; */
+    /* border-radius: 50%; */
     /* right: 8px; */
     /* bottom: 8px; */
-}
+/* } */
 
 .player {
     position: absolute;
-    background-color: #ff0000; /* For visibility */
+    /* background-color: #ff0000; For visibility */
     border-radius: 50%;
     width: 100%;
     height: 100%;

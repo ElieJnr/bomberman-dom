@@ -41,17 +41,17 @@ const tileMap = {
   },
   map: [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 2, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 0, 2, 0, 0, 0, 1],
+    [1, 0, 0, 0, 2, 0, 2, 0, 0, 2, 0, 2, 2, 4, 2, 0, 2, 0, 0, 0, 1],
     [1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 2, 2, 0, 0, 2, 4, 2, 2, 0, 0, 2, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 2, 2, 2, 0, 2, 4, 2, 2, 0, 0, 2, 0, 0, 0, 0, 1],
     [1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1, 2, 1],
-    [1, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 2, 0, 2, 4, 2, 2, 0, 4, 2, 1],
+    [1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 4, 2, 2, 0, 4, 2, 1],
     [1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 2, 1],
     [1, 2, 2, 2, 0, 2, 2, 0, 0, 2, 2, 4, 0, 2, 0, 2, 0, 2, 0, 0, 1],
-    [1, 4, 1, 0, 1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1],
-    [1, 0, 0, 0, 2, 0, 0, 2, 0, 2, 2, 2, 2, 0, 0, 4, 2, 0, 0, 0, 1],
+    [1, 2, 1, 0, 1, 4, 1, 2, 1, 0, 1, 2, 1, 2, 1, 0, 1, 0, 1, 2, 1],
+    [1, 0, 0, 0, 2, 0, 0, 2, 0, 2, 4, 2, 2, 0, 0, 4, 2, 0, 0, 0, 1],
     [1, 0, 1, 0, 1, 2, 1, 2, 1, 0, 1, 2, 1, 2, 1, 2, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 0, 2, 0, 2, 2, 2, 4, 2, 2, 2, 2, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   ],
 
@@ -151,7 +151,6 @@ class GameRenderer {
     }
   }
 
-
   getPlayerPositions(gridWidth, gridHeight, maxPlayers) {
     const positions = [];
     // const padding = 20; // Distance from the edges
@@ -170,24 +169,22 @@ class GameRenderer {
     return positions;
   }
 
-  // Function to create or update a player on the map
-  // createOrUpdatePlayer(player, x, y) {
-  //   let playerElement = VDOM.createElement("div", {
-  //     class: "player",
-  //     id: `player-${player}`,
-  //     style: {
-  //       position: "absolute",
-  //       left: `${y * 45}px`,//"45px"
-  //       top: `${x * 45}px`,//"45px"
-  //     },
-  //   });
-  //   document.getElementById("mapDiv").appendChild(playerElement.render());
-  // }
   createOrUpdatePlayer(player, x, y) {
     let playerElement = document.getElementById(`player-${player}`);
-
-    // Si l'élément joueur n'existe pas encore, on le crée
+  
+    // List of SVG icons to assign
+    const playerIcons = [
+      "../assets/icon-player1.svg", 
+      "../assets/icon-player2.svg", 
+      "../assets/icon-player3.svg", 
+      "../assets/icon-player4.svg"
+    ];
+  
+    // If the player element does not exist, we create it
     if (!playerElement) {
+      const playerIndex = this.allPlayers.indexOf(player);  // Get the index of the player
+      const assignedIcon = playerIcons[playerIndex % playerIcons.length]; // Assign a unique SVG icon
+  
       playerElement = VDOM.createElement("div", {
         class: "player",
         id: `player-${player}`,
@@ -195,20 +192,29 @@ class GameRenderer {
           position: "absolute",
           width: `${tileMap.tileSize}px`,
           height: `${tileMap.tileSize}px`,
-          backgroundColor: "#ff0000",  // Couleur temporaire pour voir les joueurs
-          borderRadius: "50%",
         },
       }).render();
+  
+      // Add an <img> element for the player icon
+      const playerIconElement = VDOM.createElement("img", {
+        src: assignedIcon,
+        style: {
+          width: "100%",
+          height: "100%",
+          borderRadius: "50%",  // Optional: Make the icon round
+        },
+      }).render();
+  
+      playerElement.appendChild(playerIconElement);
       document.getElementById("mapDiv").appendChild(playerElement);
     }
-
-    // Met à jour la position du joueur
+  
+    // Update the player's position
     playerElement.style.left = `${y * tileMap.tileSize}px`;
     playerElement.style.top = `${x * tileMap.tileSize}px`;
     playerElement.style.width = `${tileMap.tileSize}px`;
     playerElement.style.height = `${tileMap.tileSize}px`;
   }
-
 
   setupmapDiv(width, height, left, top) {
     Object.assign(this.stateManager.getState().mapDiv.attrs.style, {

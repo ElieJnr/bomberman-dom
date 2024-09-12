@@ -55,6 +55,7 @@ export function updatePlayerAction(playerName, action, ix, iy) {
     speed = 2;
     setTimeout(() => {
       powerUp[playerName] = false;
+      SelectCurrentPowerupImage(whichpowerup, "inactive");
       whichpowerup = "";
       speed = 1;
     }, 5000);
@@ -115,6 +116,7 @@ export function updatePlayerAction(playerName, action, ix, iy) {
             boxplaced[playerName]--;
             placeBomb(row, col, playerName);
             powerUp[playerName] = false;
+            SelectCurrentPowerupImage(whichpowerup, "inactive");
           }
         } else {
           console.log(`${playerName} already placed a bomb.`);
@@ -207,6 +209,7 @@ function CollisionPowerup(row, col, playername) {
         powerUp[playername] = true;
         whichpowerup = powerupDiv.className.split("-")[1];
         console.log("Powerup type:", whichpowerup);
+        SelectCurrentPowerupImage(whichpowerup, "active");
         removePowerUp(row, col);
       }
     }
@@ -224,8 +227,29 @@ function placeBomb(row, col, playername) {
       height: `${tileMap.tileSize}px`,
     },
   });
-  document.getElementById("mapDiv").appendChild(bombElement.render());
-  bombElements.push(bombElement);
+
+  // Add the SVG image for the bomb
+  const bombImageElement = VDOM.createElement("img", {
+    src: "../assets/bomb-assets.svg",  // Path to your bomb SVG
+    style: {
+      width: "100%",
+      height: "100%",
+    },
+  });
+
+  // First, render bombElement and bombImageElement if necessary
+  const renderedBombElement = bombElement.render();
+  const renderedBombImageElement = bombImageElement.render();
+
+  // Append the image element to the bomb div
+  renderedBombElement.appendChild(renderedBombImageElement);
+
+  // Append the bomb element to the mapDiv
+  document.getElementById("mapDiv").appendChild(renderedBombElement);
+
+  bombElements.push(renderedBombElement);
+
+  // Remove the bomb after 3 seconds and trigger brick destruction
   setTimeout(() => {
     var b = document.querySelector(".bomb");
     if (b) {
@@ -234,6 +258,7 @@ function placeBomb(row, col, playername) {
     destroyBrick(row, col, playername);
   }, 3000);
 }
+
 
 export function removePlayer(playerName) {
   const playerElement = document.getElementById(`player-${playerName}`);
@@ -320,6 +345,7 @@ function destroyBrick(row, col, playername) {
         }
       }
       powerUp[playername] = false;
+      SelectCurrentPowerupImage(whichpowerup, "inactive");
     }
   });
 
@@ -426,5 +452,29 @@ function removePowerUp(row, col) {
     tileDiv.remove();
   } else {
     console.log("Unable to find the div corresponding to the power-up.");
+  }
+}
+
+function SelectCurrentPowerupImage(whichpowerup, state) {
+  // console.log("PLAYER", playerName);
+
+  if (state === "active") {
+    addActivePowerupImage(whichpowerup);
+  } else {
+    delActivePowerupImage(whichpowerup);
+  }
+}
+
+function addActivePowerupImage(whichpowerup) {
+  const powerupElement = document.querySelector(`#${whichpowerup} img`);
+  if (powerupElement) {
+    powerupElement.src = `../assets/selectpower${whichpowerup}.svg`;
+  }
+}
+
+function delActivePowerupImage(whichpowerup) {
+  const powerupElement = document.querySelector(`#${whichpowerup} img`);
+  if (powerupElement) {
+    powerupElement.src = `../assets/${whichpowerup}.svg`;
   }
 }
