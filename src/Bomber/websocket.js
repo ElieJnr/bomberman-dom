@@ -100,14 +100,9 @@ function HandlePseudo() {
   document.addEventListener("keydown", keydownHandler);
 }
 
-function handlePlayerAction(data) {
+function handlePlayerAction(data) {  
   console.log("Received player action:", data);
   const playerPosition = allpos[data.name];
-  console.log("data.name", data.name);
-  console.log("data.action", data.action);
-  console.log("data.action", playerPosition.x);
-  console.log("data.action", playerPosition.y);
-  
   updatePlayerAction(data.name, data.action, playerPosition.x, playerPosition.y);
 }
 

@@ -81,11 +81,6 @@ func handleMessageFromClients(msg Message, conn *websocket.Conn) {
 		} else {
 			fmt.Printf("Player %s does not exist in the room\n", msg.Name)
 		}
-	case "action":
-	fmt.Println("msgAction", msg)
-
-		// conn.WriteJSON(Message{Type: "action"})
-		conn.WriteJSON(msg)
 	default:
 		SendMessageToClients(msg, room)
 	}

@@ -123,7 +123,7 @@ export function updatePlayerAction(playerName, action, ix, iy) {
       break;
 
     default:
-      break;
+      return;
   }
 
   if (speed === 1) {

@@ -41,17 +41,3 @@ function getActionFromKey(key) {
             return null;
     }
 }
-
-// const gameCenter = VDOM.createElement('div', { class: 'gamecenter' },
-//     VDOM.createElement('div', { class: 'gameheader' },
-//         VDOM.createElement('div', { class: 'gamelogo' },
-//             VDOM.createElement('img', { src: 'assets/logo.svg', alt: '' })
-//         ),
-//         VDOM.createElement('div', { class: 'gamerightpart' },
-//             VDOM.createElement('div', { class: 'lifecounter' },
-//                 VDOM.createElement('img', { src: 'assets/lifecounter.svg', alt: '' })
-//             ),
-//             VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
-//         )
-//     )
-// )
