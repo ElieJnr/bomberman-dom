@@ -1,7 +1,7 @@
 import { createChat, displayMessage } from './components/Chat.js';
 import { updatePlayerAction } from './components/Player.js';
 import { waitingRoom } from './components/waitingRoom.js';
-import { startGame, startPreparation } from './game.js';
+import { startPreparation } from './game.js';
 import { createCountdown, requestFullScreen } from './utils.js';
 import VDOM from '../core/dom.mjs';
 import { ws } from './globals.js';
@@ -19,22 +19,19 @@ export function setupWebSocket() {
 
   ws.onerror = () => console.log('WebSocket error');
 
-  ws.onmessage = (event) => handleWebSocketMessage(JSON.parse(event.data));
+  ws.onmessage = (event) => {
+    console.log("Received message:", event.data);
+    const data = JSON.parse(event.data);
+    handleWebSocketMessage(data);
+  };
 }
 
 function handleWebSocketMessage(data) {
+  console.log("datatype", data);
 
   switch (data.type) {
     case 'pseudoUsed':
-      let errorName = VDOM.createElement("div", { id: "errorName", style: "color:red;margin-top:10px;font-size:x-large;" }, "this pseudo is already used, please change it");
-
-      if (!document.getElementById("errorName")) {
-        VDOM.appendChildToElementById("app", errorName);
-        setTimeout(() => (
-          document.getElementById("errorName").remove()
-        ), 2000);
-      }
-      document.addEventListener("keydown", keydownHandler);
+      HandlePseudo();
       break
     case 'message':
       displayMessage(data.name, data.content);
@@ -49,14 +46,7 @@ function handleWebSocketMessage(data) {
       handlePlayerDisconnected(data);
       break;
     case 'startPreparation':
-      startPreparation();
-      break;
-    case 'startGame':
-      let life = 3;
-      startGame(life ,objetOfPlayer);
-      break;
-    case 'notEnoughPlayers':
-      displayMessage('Not enough players to start the game.', false);
+      startPreparation(data);
       break;
     case 'gameStarted':
       alert(data.content);
@@ -65,7 +55,7 @@ function handleWebSocketMessage(data) {
     case 'gameEnded':
       alert(data.content);
       ws.close();
-      window.location.reload(); 
+      window.location.reload();
       break;
     case 'error':
       console.warn(data.content);
@@ -76,15 +66,30 @@ function handleWebSocketMessage(data) {
   }
 }
 
+function HandlePseudo() {
+  let errorName = VDOM.createElement("div", { id: "errorName", style: "color:red;margin-top:10px;font-size:x-large;" }, "this pseudo is already used, please change it");
+
+  if (!document.getElementById("errorName")) {
+    VDOM.appendChildToElementById("app", errorName);
+    setTimeout(() => (
+      document.getElementById("errorName").remove()
+    ), 2000);
+  }
+  document.addEventListener("keydown", keydownHandler);
+}
+
 function handlePlayerAction(data) {
+  console.log("Received player action:", data);
   const playerPosition = allpos[data.name];
   updatePlayerAction(data.name, data.action, playerPosition.x, playerPosition.y);
 }
 
 function handlePlayerJoined(data) {
+  console.log("data.playerOrder", data.playerOrder);
+  
   seconds = data.seconds;
   playerCount = data.playerCount;
-  objetOfPlayer = data.playerOrder;
+  objetOfPlayer = data.playerOrder.map(player => player.Name);
 
   requestFullScreen();
   waitingRoom(playerCount);
@@ -102,7 +107,7 @@ function handlePlayerJoined(data) {
 function handlePlayerDisconnected(data) {
   seconds = data.seconds;
   playerCount = data.playerCount;
-  objetOfPlayer = data.playerOrder;
+  objetOfPlayer = data.playerOrder.map(player => player.Name);
 
   waitingRoom(playerCount);
   displayMessage(`${data.name} has left the game.`, false);

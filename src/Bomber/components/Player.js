@@ -150,22 +150,22 @@ export function updatePlayerAction(playerName, action, ix, iy) {
     console.log("c'ant move by 2");
     var tempcol, temprow
 
-    if (lastmove == 'D' ){
+    if (lastmove == 'D') {
       temprow = newRow - 1
-      tempcol = newCol 
+      tempcol = newCol
     } else if (lastmove == "U") {
       temprow = newRow + 1
       tempcol = newCol
-    } else if (lastmove == "L"){
+    } else if (lastmove == "L") {
       tempcol = newCol + 1
       temprow = newRow
-    }else if (lastmove == "R"){
+    } else if (lastmove == "R") {
       tempcol = newCol - 1
       temprow = newRow
     }
 
-    console.log("xxxxx",tempcol, temprow);
-    
+    console.log("xxxxx", tempcol, temprow);
+
 
     if (canMoveTo(newRow, newCol) && canMoveTo(temprow, tempcol)) {
       console.log("2");
@@ -177,17 +177,17 @@ export function updatePlayerAction(playerName, action, ix, iy) {
         playerElement.style.left = `${newCol * tileMap.tileSize}px`;
         playerElement.style.top = `${newRow * tileMap.tileSize}px`;
       }
-    } else if (canMoveTo(temprow , tempcol)) {
-        console.log("1");
+    } else if (canMoveTo(temprow, tempcol)) {
+      console.log("1");
 
-        playerPositions[playerName] = { row: temprow, col: tempcol };
+      playerPositions[playerName] = { row: temprow, col: tempcol };
 
-        const playerElement = document.getElementById(`player-${playerName}`);
-        if (playerElement) {
-          playerElement.style.left = `${(tempcol) * tileMap.tileSize}px`;
-          playerElement.style.top = `${(temprow) * tileMap.tileSize}px`;
-        }
-      
+      const playerElement = document.getElementById(`player-${playerName}`);
+      if (playerElement) {
+        playerElement.style.left = `${(tempcol) * tileMap.tileSize}px`;
+        playerElement.style.top = `${(temprow) * tileMap.tileSize}px`;
+      }
+
     }
   }
 
@@ -220,14 +220,14 @@ function CollisionPowerup(row, col, playername) {
 }
 function placeBomb(row, col, playername) {
   const bombElement = VDOM.createElement("div", {
-      class: "bomb",
-      style: {
-          position: "absolute",
-          left: `${col * tileMap.tileSize}px`,
-          top: `${row * tileMap.tileSize}px`,
-          width: `${tileMap.tileSize}px`,
-          height: `${tileMap.tileSize}px`,
-      },
+    class: "bomb",
+    style: {
+      position: "absolute",
+      left: `${col * tileMap.tileSize}px`,
+      top: `${row * tileMap.tileSize}px`,
+      width: `${tileMap.tileSize}px`,
+      height: `${tileMap.tileSize}px`,
+    },
   });
   document.getElementById("mapDiv").appendChild(bombElement.render());
   bombElements.push(bombElement);
@@ -313,9 +313,7 @@ function destroyBrick(row, col, playername) {
       }
       powerUp[playername] = false;
     }
-  })
-
-    ;
+  });
 
   // Check collisions with players
   for (const playerName in playerPositions) {
@@ -342,7 +340,7 @@ function retriveLive(playerName, life) {
   if (lifecounterContainer) {
     // Assuming the hearts are inside a deeper div, adjust to target the actual container holding the hearts
     const heartsContainer = lifecounterContainer.querySelector('.lifecounter');
-    
+
     if (heartsContainer) {
       const hearts = heartsContainer.querySelectorAll('img'); // Target heart images
 
@@ -368,7 +366,7 @@ function retriveLive(playerName, life) {
 }
 
 export function createLifeCounter(playerName, life) {
-  console.log('playerName',playerName, "life",life)
+  console.log('playerName', playerName, "life", life)
   const hearts = Array.from({ length: life }).map((_, index) =>
     VDOM.createElement('img', { class: `lifecounter-${playerName}-${index}`, src: '../assets/heart.svg', alt: 'heart life' })
   );
@@ -376,7 +374,6 @@ export function createLifeCounter(playerName, life) {
     VDOM.createElement('div', { class: 'lifecounter' },
       ...hearts
     ),
-    // VDOM.createElement('div', { class: 'gametimer' }, 'Time: 00:30')
   );
 }
 
