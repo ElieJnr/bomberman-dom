@@ -2,7 +2,7 @@ import VDOM from '../../core/dom.mjs';
 import EventHandler from '../../core/events.js';
 import { ws } from '../globals.js';
 
-export let playerName = "";
+export let CurrentJoueur = "";
 
 
 export function changeScreen() {
@@ -20,8 +20,8 @@ export function changeScreen() {
 
 export const keydownHandler = (event) => {
     if (event.key == "Enter") {
-        playerName = document.getElementById('inputfield').value.trim();
-        if (playerName) {
+        CurrentJoueur = document.getElementById('inputfield').value.trim();
+        if (CurrentJoueur) {
 
             if (ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) {
                 console.warn("WebSocket is in CLOSING or CLOSED state. Reloading page...");
@@ -30,7 +30,7 @@ export const keydownHandler = (event) => {
                 return
             }
 
-            if (playerName.length > 6) {
+            if (CurrentJoueur.length > 6) {
                 let errorName = VDOM.createElement("div", { id: "errorName", style: "color:red;margin-top:10px;font-size:x-large;" }, "Please, use less than 7 caracters");
 
                 if (!document.getElementById("errorName")) {
@@ -41,7 +41,7 @@ export const keydownHandler = (event) => {
                 }
                 return
             }
-            ws.send(JSON.stringify({ type: 'join', name: playerName }));
+            ws.send(JSON.stringify({ type: 'join', name: CurrentJoueur }));
             // eventHandler.trigger("enterkey", "");
 
             document.removeEventListener("keydown", keydownHandler);

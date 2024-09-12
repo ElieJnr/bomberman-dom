@@ -1,5 +1,5 @@
 import VDOM from '../../core/dom.mjs';
-import { playerName } from './PlayerForm.js';
+import { CurrentJoueur } from './PlayerForm.js';
 import { ws } from '../globals.js';
 import { MountComponent } from '../utils.js';
 
@@ -21,7 +21,7 @@ function handleKeyDown(event) {
     
     const action = getActionFromKey(event.key);
     if (action) {
-        ws.send(JSON.stringify({ type: 'action', name: playerName, action: action }));
+        ws.send(JSON.stringify({ type: 'action', name: CurrentJoueur, action: action }));
     }
 }
 

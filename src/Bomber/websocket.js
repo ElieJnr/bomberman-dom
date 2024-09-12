@@ -7,6 +7,7 @@ import VDOM from '../core/dom.mjs';
 import { ws } from './globals.js';
 import { allpos } from './components/maps.js';
 import { keydownHandler } from './components/PlayerForm.js';
+import { youthewinner } from './components/endgame.js';
 
 export let seconds;
 export let playerCount;
@@ -77,15 +78,12 @@ function displayGameStartedMessage(message) {
 }
 
 function displayGameEndedMessage(message) {
-  const endGameMessage = VDOM.createElement("div", { id: "endGameMessage", style: "color:blue;margin-top:10px;font-size:x-large;" }, message);
-
-  if (!document.getElementById("endGameMessage")) {
-    VDOM.appendChildToElementById("app", endGameMessage);
+  // const endGameMessage = VDOM.createElement("div", { id: "endGameMessage", style: "color:blue;margin-top:10px;font-size:x-large;" }, message);
+  document.body.innerHTML = ""
+  document.body.appendChild(youthewinner.render())
     setTimeout(() => {
-      document.getElementById("endGameMessage").remove();
       window.location.reload();
     }, 5000); 
-  }
 }
 
 function HandlePseudo() {

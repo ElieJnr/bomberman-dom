@@ -1,6 +1,8 @@
 import VDOM from "../../core/dom.mjs";
 import { ws } from "../globals.js";
+import { gameover } from "./endgame.js";
 import { tileMap, mapClass } from "./maps.js";
+import { CurrentJoueur } from "./PlayerForm.js";
 
 const playerElements = {};
 export const playerPositions = {};
@@ -239,7 +241,8 @@ export function removePlayer(playerName) {
 
   if (playerElement) {
     map.removeChild(playerElement);
-
+    document.body.innerHTML = ""
+    document.body.appendChild(gameover.render())
     delete playerElements[playerName];
     delete playerPositions[playerName];
     delete playerLives[playerName];
@@ -330,8 +333,7 @@ function destroyBrick(row, col, playername) {
       playerLives[playerName] -= 1;
       retriveLive(playerName, playerLives[playerName]);
       console.log(`${playerName} a été touché, il lui reste ${playerLives[playerName]} vies`);
-
-      if (playerLives[playerName] <= 0) {
+      if (playerLives[playerName] <= 0 && playerName == CurrentJoueur) {
         removePlayer(playerName);
       }
     }
