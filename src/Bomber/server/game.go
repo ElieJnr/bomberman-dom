@@ -72,7 +72,24 @@ func handleMessageFromClients(msg Message, conn *websocket.Conn) {
 			conn.WriteJSON(Message{Type: "pseudoUsed"})
 			break
 		}
+
 		HandleJoin(conn, msg.Name)
+
+		gestionFirstTimer()
+
+
+		if room.PlayerCount == 4 {			
+			room.CountdownStarted = true
+			broadcast <- Message{
+				Type:        "startPreparation",
+				Content:     "Starting countdown in 10 seconds.",
+				PlayerCount: room.PlayerCount,
+				PlayerOrder: playerOrder,
+			}
+
+		}
+
+
 	case "playerDefeated":
 		player, exists := room.Players[msg.Name]
 		if exists {
@@ -81,10 +98,22 @@ func handleMessageFromClients(msg Message, conn *websocket.Conn) {
 			fmt.Printf("Player %s does not exist in the room\n", msg.Name)
 		}
 	case "action":
-		fmt.Println("llllllllllllle", msg)
 		SendMessageToClients(msg, room)
 	default:
 		SendMessageToClients(msg, room)
+	}
+}
+
+func gestionFirstTimer() {
+	if room.isGood && room.PlayerCount > 1 {
+		go func() {
+			room.isGood = false
+			for i := 0; i <= 20; i++ {
+				room.TempsRestant = int(room.WaitingTime.Seconds()) - i - 1
+				time.Sleep(1 * time.Second)
+			}
+			room.isGood = true
+		}()
 	}
 }
 
@@ -271,7 +300,7 @@ func BroadcastPlayerJoined(name string) {
 	broadcast <- Message{
 		Type:        "playerJoined",
 		Name:        name,
-		Seconds:     int(room.WaitingTime.Seconds()),
+		Seconds: room.TempsRestant,
 		PlayerCount: room.PlayerCount,
 		PlayerOrder: playerOrder,
 	}

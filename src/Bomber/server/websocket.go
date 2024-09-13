@@ -26,6 +26,8 @@ type Room struct {
 	GameOver            bool
 	WaitingTimerStarted bool
 	mu                  sync.Mutex
+	TempsRestant int
+	isGood bool
 }
 
 var (
@@ -35,6 +37,8 @@ var (
 		MaxPlayers:    4,
 		WaitingTime:   20 * time.Second,
 		CountdownTime: 10 * time.Second,
+		isGood: true,
+		TempsRestant: 20,
 	}
 	broadcast = make(chan Message)
 )

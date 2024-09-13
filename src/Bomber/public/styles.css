@@ -334,6 +334,7 @@ body {
     overflow: hidden;
     width: 100%; /* Ensure it uses the full width dynamically */
     height: 100%;
+    background-color: white;
 }
 
 .setBrick {
@@ -428,7 +429,7 @@ body {
     left: 0;
     width: 95%;
     height: 95%;
-    background-color: #fff;
+    /* background-color: #fff; */
     border-radius: 6px;
 }
 

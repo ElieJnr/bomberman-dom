@@ -1,22 +1,31 @@
+let activeCountdown = null;
+
 export function createCountdown(seconds, displayElement, message, onComplete) {
   let remainingSeconds = seconds;
+
+  if (activeCountdown) {
+    clearInterval(activeCountdown);
+  }
 
   const updateDisplay = () => {
     displayElement.textContent = `00:${remainingSeconds} ${message}`;
   };
 
-  const countdown = setInterval(() => {
+  
+  activeCountdown = setInterval(() => {
     if (remainingSeconds > 0) {
       remainingSeconds--;
       updateDisplay();
     } else {
-      clearInterval(countdown);
-      if (onComplete) onComplete();
+      clearInterval(activeCountdown); 
+      activeCountdown = null; 
+      if (onComplete) onComplete(); 
     }
   }, 1000);
 
   updateDisplay();
 }
+
 
 export function requestFullScreen() {
   const elem = document.documentElement;
