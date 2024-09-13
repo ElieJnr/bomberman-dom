@@ -7,7 +7,7 @@ import VDOM from '../core/dom.mjs';
 import { ws } from './globals.js';
 import { allpos } from './components/maps.js';
 import { keydownHandler } from './components/PlayerForm.js';
-import { youthewinner } from './components/endgame.js';
+import { gameover, youthewinner } from './components/endgame.js';
 
 export let seconds;
 export let playerCount;
@@ -31,7 +31,7 @@ export function setupWebSocket() {
 
   ws.onclose = (event) => {
     console.log('WebSocket connection closed', event);
-    setTimeout(setupWebSocket, 5000); 
+    setTimeout(setupWebSocket, 5000);
   };
 }
 
@@ -55,14 +55,16 @@ function handleWebSocketMessage(data) {
       handlePlayerDisconnected(data);
       break;
     case 'startPreparation':
-      AllPlayerInfo = data.playerOrder      
+      AllPlayerInfo = data.playerOrder
       startPreparation(data);
       break;
-    case 'gameStarting':
-      displayGameStartedMessage(data.content);
-      break;
+    // case 'gameStarting':
+    //   displayGameStartedMessage(data.content);
+    //   break;
     case 'gameEnded':
-      displayGameEndedMessage(data.content);
+      console.log("gameEnded", data);
+
+      displayGameEndedMessage();
       break;
     case 'error':
       console.warn(data.content);
@@ -73,17 +75,18 @@ function handleWebSocketMessage(data) {
   }
 }
 
-function displayGameStartedMessage(message) {
-  alert(message);
-}
+// function displayGameStartedMessage(message) {
+//   alert(message);
+// }
 
-function displayGameEndedMessage(message) {
+function displayGameEndedMessage() {
   // const endGameMessage = VDOM.createElement("div", { id: "endGameMessage", style: "color:blue;margin-top:10px;font-size:x-large;" }, message);
   document.body.innerHTML = ""
   document.body.appendChild(youthewinner.render())
-    setTimeout(() => {
-      window.location.reload();
-    }, 5000); 
+  // document.body.appendChild(gameover.render())
+  // setTimeout(() => {
+  //   window.location.reload();
+  // }, 5000); 
 }
 
 function HandlePseudo() {
@@ -98,7 +101,7 @@ function HandlePseudo() {
   document.addEventListener("keydown", keydownHandler);
 }
 
-function handlePlayerAction(data) {  
+function handlePlayerAction(data) {
   console.log("Received player action:", data);
   const playerPosition = allpos[data.name];
   updatePlayerAction(data.name, data.action, playerPosition.x, playerPosition.y);
@@ -106,7 +109,7 @@ function handlePlayerAction(data) {
 
 function handlePlayerJoined(data) {
   console.log("data.playerOrder", data.playerOrder);
-  
+
   seconds = data.seconds;
   playerCount = data.playerCount;
   objetOfPlayer = data.playerOrder.map(player => player.Name);

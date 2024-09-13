@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -11,35 +12,18 @@ import (
 func HandleConnection(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("Error upgrading connection:", err)
+		log.Println("Error upgrading connection:", err)
 		return
 	}
-	defer conn.Close()
 
-	fmt.Println("Client connected")
-
-	go SendPingMessages(conn, room)
-
-	for {
-		var msg Message
-		err := conn.ReadJSON(&msg)
-		if err != nil {
-			if websocket.IsCloseError(err, websocket.CloseGoingAway) {
-				handleClientDisconnection(conn, room)
-				break
-			}
-			fmt.Println("Error reading message:", err)
-			handleClientDisconnection(conn, room)
-			continue
-		}
-
-		if msg.Type == "" {
-			conn.WriteJSON(Message{Type: "error", Content: "Invalid message format"})
-			continue
-		}
-
-		handleMessageFromClients(msg, conn)
+	player := &Player{
+		Connection: conn,
+		Lives:      3,
 	}
+
+	log.Println("New client connected")
+
+	go HandlePlayerMessages(player)
 }
 
 func SendPingMessages(conn *websocket.Conn, room *Room) {
@@ -51,56 +35,21 @@ func SendPingMessages(conn *websocket.Conn, room *Room) {
 		case <-ticker.C:
 			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				fmt.Printf("Error sending ping message: %v\n", err)
-				handleClientDisconnection(conn, room)
+
+				var playerToDisconnect *Player
+				for _, player := range room.Players {
+					if player.Connection == conn {
+						playerToDisconnect = player
+						break
+					}
+				}
+
+				if playerToDisconnect != nil {
+					HandleClientDisconnection(playerToDisconnect)
+				}
 				return
 			}
 		}
-	}
-}
-
-func handleMessageFromClients(msg Message, conn *websocket.Conn) {
-	switch msg.Type {
-	case "join":
-		playerOrder := make([]Player, 0, len(room.Players))
-		for _, player := range room.Players {
-			playerOrder = append(playerOrder, Player{
-				Name: player.Name,
-			})
-		}
-
-		if contains(playerOrder, msg.Name) {
-			conn.WriteJSON(Message{Type: "pseudoUsed"})
-			break
-		}
-
-		HandleJoin(conn, msg.Name)
-
-		gestionFirstTimer()
-
-
-		if room.PlayerCount == 4 {			
-			room.CountdownStarted = true
-			broadcast <- Message{
-				Type:        "startPreparation",
-				Content:     "Starting countdown in 10 seconds.",
-				PlayerCount: room.PlayerCount,
-				PlayerOrder: playerOrder,
-			}
-
-		}
-
-
-	case "playerDefeated":
-		player, exists := room.Players[msg.Name]
-		if exists {
-			handlePlayerDefeated(player, room)
-		} else {
-			fmt.Printf("Player %s does not exist in the room\n", msg.Name)
-		}
-	case "action":
-		SendMessageToClients(msg, room)
-	default:
-		SendMessageToClients(msg, room)
 	}
 }
 
@@ -108,150 +57,147 @@ func gestionFirstTimer() {
 	if room.isGood && room.PlayerCount > 1 {
 		go func() {
 			room.isGood = false
+			ticker := time.NewTicker(1 * time.Second)
+			defer ticker.Stop()
+
 			for i := 0; i <= 20; i++ {
-				room.TempsRestant = int(room.WaitingTime.Seconds()) - i - 1
-				time.Sleep(1 * time.Second)
+				select {
+				case <-ticker.C:
+					room.TempsRestant--
+				}
 			}
 			room.isGood = true
 		}()
 	}
 }
 
-func HandleJoin(conn *websocket.Conn, name string) {
+func HandleJoin(player *Player, name string) {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
 	if room.GameStarted {
-		conn.WriteJSON(Message{Type: "gameStarted", Content: "Game has already started. You cannot join now."})
-		CloseConn(conn)
+		SendToPlayer(player, Message{Type: "error", Content: "Game has already started"})
 		return
 	}
 
-	if _, exists := room.Players[name]; !exists {
-		player := &Player{
-			Name:       name,
-			Connection: conn,
-			Lives:      3,
-		}
-		room.Players[name] = player
-		room.PlayerCount++
-
-		BroadcastPlayerJoined(name)
-
-		if room.PlayerCount > 4 && !room.CountdownStarted {
-			room.CountdownStarted = true
-			go StartCountdown()
-		} else if room.PlayerCount >= 2 && !room.CountdownStarted && !room.WaitingTimerStarted {
-			room.WaitingTimerStarted = true
-			go StartWaitingTimer()
-		}
+	if _, exists := room.Players[name]; exists {
+		SendToPlayer(player, Message{Type: "pseudoUsed"})
+		return
 	}
+
+	player.Name = name
+	room.Players[name] = player
+	room.PlayerCount++
+
+	BroadcastPlayerJoined(name)
+
+	if room.PlayerCount >= 2 && !room.CountdownStarted && !room.WaitingTimerStarted {
+		room.WaitingTimerStarted = true
+		go StartWaitingTimer()
+	}
+	gestionFirstTimer()
 }
 
 func StartWaitingTimer() {
-	time.AfterFunc(room.WaitingTime, func() {
-		room.mu.Lock()
-		defer room.mu.Unlock()
+	time.Sleep(room.WaitingTime)
 
-		playerOrder := make([]Player, 0, len(room.Players))
-		for _, player := range room.Players {
-			playerOrder = append(playerOrder, Player{
-				Name:  player.Name,
-				Lives: player.Lives,
-			})
-		}
-
-		if room.PlayerCount >= 4 {
-			go StartCountdown()
-		} else if room.PlayerCount >= 2 {
-			room.CountdownStarted = true
-			broadcast <- Message{
-				Type:        "startPreparation",
-				Content:     "Starting countdown in 10 seconds.",
-				PlayerCount: room.PlayerCount,
-				PlayerOrder: playerOrder,
-			}
-			time.AfterFunc(room.CountdownTime, func() {
-				room.mu.Lock()
-				defer room.mu.Unlock()
-
-				if room.PlayerCount >= 2 {
-					StartCountdown()
-				} else {
-					RemoveRoom()
-				}
-			})
-		} else {
-			// RemoveRoom()
-		}
-	})
-}
-
-func StartCountdown() {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
-	playerOrder := make([]Player, 0, len(room.Players))
-	for _, player := range room.Players {
-		playerOrder = append(playerOrder, Player{
-			Name:  player.Name,
-			Lives: player.Lives,
-		})
-	}
-
-	room.CountdownStarted = true
-	for _, player := range room.Players {
-		player.Connection.WriteJSON(Message{
+	if room.PlayerCount >= 2 {
+		room.CountdownStarted = true
+		broadcast <- Message{
 			Type:        "startPreparation",
-			Name:        player.Name,
-			Content:     "Game is starting in 10 seconds!",
-			Seconds:     int(room.CountdownTime.Seconds()),
+			Content:     "Starting countdown in 10 seconds.",
 			PlayerCount: room.PlayerCount,
-			PlayerOrder: playerOrder,
-		})
-	}
-
-	time.AfterFunc(room.CountdownTime, func() {
-		room.mu.Lock()
-		defer room.mu.Unlock()
-
-		if room.PlayerCount >= 2 {
-			room.GameStarted = true
-			for _, player := range room.Players {
-				player.Connection.WriteJSON(Message{
-					Type:        "gameStarted",
-					Name:        player.Name,
-					Content:     "The game is now starting!",
-					Seconds:     0,
-					PlayerCount: room.PlayerCount,
-					PlayerOrder: playerOrder,
-				})
-			}
-		} else {
-			RemoveRoom()
+			PlayerOrder: GetPlayerOrder(),
 		}
-	})
+		// go StartCountdown()
+	} else {
+		room.WaitingTimerStarted = false
+	}
 }
 
-func handleClientDisconnection(conn *websocket.Conn, room *Room) {
+// func StartCountdown() {
+// 	time.Sleep(room.CountdownTime)
+// 	room.mu.Lock()
+// 	defer room.mu.Unlock()
+// 	if room.PlayerCount >= 2 {
+// 		room.GameStarted = true
+// 		broadcast <- Message{
+// 			Type:        "startPreparation",
+// 			Content:     "The game is now starting!",
+// 			PlayerCount: room.PlayerCount,
+// 			PlayerOrder: GetPlayerOrder(),
+// 		}
+// 	} else {
+// 		ResetRoom()
+// 	}
+// }
+
+func HandleClientDisconnection(player *Player) {
 	room.mu.Lock()
 	defer room.mu.Unlock()
-
-	for _, player := range room.Players {
-		if player.Connection == conn {
-			RemovePlayer(player, room)
-			return
-		}
-	}
-}
-
-func RemovePlayer(player *Player, room *Room) {
-	fmt.Printf("Player %s disconnected\n", player.Name)
 
 	delete(room.Players, player.Name)
 	room.PlayerCount--
 
+	if _, exists := room.Players[player.Name]; exists {
+		if room.PlayerCount == 1 {
+			EndGame("You are the last player remaining. You win!")
+		} else if room.PlayerCount > 1 {
+			fmt.Println("HandleClientDisconnection")
+			broadcast <- Message{
+				Type:        "playerDisconnected",
+				Name:        player.Name,
+				PlayerCount: room.PlayerCount,
+				PlayerOrder: GetPlayerOrder(),
+				Content:     fmt.Sprintf("Player %s has been defeated. %d players remaining.", player.Name, room.PlayerCount),
+			}
+		} else {
+			ResetRoom()
+		}
+	}
+}
+
+func BroadcastToRoom(room *Room, message Message) {
+	room.mu.RLock()
+	defer room.mu.RUnlock()
+
+	for _, player := range room.Players {
+		player.mu.Lock()
+		err := player.Connection.WriteJSON(message)
+		player.mu.Unlock()
+		if err != nil {
+			fmt.Printf("Error sending message to player %s: %v\n", player.Name, err)
+		}
+	}
+}
+
+func HandlePlayerRemoval(player *Player, room *Room, isDefeated bool) {
+	room.mu.Lock()
+	defer room.mu.Unlock()
+	fmt.Println("HandlePlayerRemoval", room.PlayerCount)
+
+	if isDefeated {
+		player.Lives--
+	}
+
+	delete(room.Players, player.Name)
+	room.PlayerCount--
+
+	// var messageContent string
+	// if isDefeated {
+	// 	messageContent = fmt.Sprintf("Player %s has been defeated. %d players remaining.", player.Name, room.PlayerCount)
+	// } else {
+	// 	messageContent = fmt.Sprintf("Player %s has disconnected. %d players remaining.", player.Name, room.PlayerCount)
+	// }
+
+	fmt.Println("HandlePlayerRemoval1", room.PlayerCount)
+
 	if room.PlayerCount == 1 {
+	fmt.Println("HandlePlayerRemoval2", room.PlayerCount)
+
 		for _, remainingPlayer := range room.Players {
 			err := remainingPlayer.Connection.WriteJSON(Message{
 				Type:    "gameEnded",
@@ -261,48 +207,30 @@ func RemovePlayer(player *Player, room *Room) {
 				fmt.Println("Error sending win message:", err)
 			}
 		}
-		EndGame(room)
+		// EndGame("The game has ended as there is only one player remaining.")
 	} else if room.PlayerCount > 1 {
-		broadcastMessage := Message{
-			Type:        "playerDisconnected",
-			Name:        player.Name,
-			PlayerCount: room.PlayerCount,
-			Content:     fmt.Sprintf("Player %s has been defeated. %d players remaining.", player.Name, room.PlayerCount),
-		}
-		BroadcastToRoom(room, broadcastMessage)
+	fmt.Println("HandlePlayerRemoval3", room.PlayerCount)
+
+		// broadcastMessage := Message{
+		// 	Type:        "playerRemoved",
+		// 	Name:        player.Name,
+		// 	PlayerCount: room.PlayerCount,
+		// 	PlayerOrder: GetPlayerOrder(),
+		// 	Content:     messageContent,
+		// }
+		// BroadcastToRoom(room, broadcastMessage)
 	} else {
 		room.CountdownStarted = false
 	}
 }
 
-func BroadcastToRoom(room *Room, message Message) {
-	for _, player := range room.Players {
-		err := player.Connection.WriteJSON(message)
-		if err != nil {
-			fmt.Printf("Error sending message to player %s: %v\n", player.Name, err)
-		}
-	}
-}
-
-func handlePlayerDefeated(player *Player, room *Room) {
-	RemovePlayer(player, room)
-}
-
 func BroadcastPlayerJoined(name string) {
-	playerOrder := make([]Player, 0, len(room.Players))
-	for _, player := range room.Players {
-		playerOrder = append(playerOrder, Player{
-			Name:  player.Name,
-			Lives: player.Lives,
-		})
-	}
-
 	broadcast <- Message{
 		Type:        "playerJoined",
 		Name:        name,
-		Seconds: room.TempsRestant,
+		Seconds:     room.TempsRestant,
 		PlayerCount: room.PlayerCount,
-		PlayerOrder: playerOrder,
+		PlayerOrder: GetPlayerOrder(),
 	}
 }
 
@@ -326,4 +254,12 @@ func contains(arr []Player, target string) bool {
 		}
 	}
 	return false
+}
+
+func EndGame(message string) {
+	broadcast <- Message{
+		Type:    "gameEnded",
+		Content: message,
+	}
+	ResetRoom()
 }

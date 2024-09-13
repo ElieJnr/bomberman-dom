@@ -33,6 +33,10 @@ export function waitingRoom(nbrOfPlayer) {
         VDOM.appendChildToElementById("container", VDOM.createElement("div", { id: "otherside" }, VDOM.createElement("div", { id: "part1" }), VDOM.createElement("div", { id: "part2" }), VDOM.createElement("div", { id: "part3" })))
     }
 
+    console.log("nbrOfPlayer", nbrOfPlayer);
+    
+    
+
     document.getElementById("allplayer").innerHTML = ""
 
     for (let i = 0; i < nbrOfPlayer; i++) {

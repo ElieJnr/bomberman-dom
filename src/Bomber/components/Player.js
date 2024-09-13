@@ -1,6 +1,6 @@
 import VDOM from "../../core/dom.mjs";
 import { ws } from "../globals.js";
-import { gameover } from "./endgame.js";
+import { gameover, youthewinner } from "./endgame.js";
 import { tileMap, mapClass } from "./maps.js";
 import { CurrentJoueur } from "./PlayerForm.js";
 
@@ -62,7 +62,7 @@ export function updatePlayerAction(playerName, action, ix, iy) {
   } else {
     speed = 1;
   }
-  
+
   switch (action) {
     case "move_left":
       if (canPerformAction(playerName)) {
@@ -261,27 +261,19 @@ function placeBomb(row, col, playername) {
 
 
 export function removePlayer(playerName) {
+  console.log("CurrentJoueur", CurrentJoueur);
+  
   const playerElement = document.getElementById(`player-${playerName}`);
   const map = document.getElementById("mapDiv");
 
   if (playerElement) {
     map.removeChild(playerElement);
-    document.body.innerHTML = ""
-    document.body.appendChild(gameover.render())
+
     delete playerElements[playerName];
     delete playerPositions[playerName];
     delete playerLives[playerName];
 
-    const message = {
-      type: 'playerDefeated',
-      name: playerName,
-    };
-
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(message));
-    } else {
-      console.warn('WebSocket connection is not open.');
-    }
+   
   } else {
     console.warn(`Player element with name ${playerName} not found.`);
   }
@@ -350,20 +342,48 @@ function destroyBrick(row, col, playername) {
   });
 
   // Check collisions with players
+  const playersToRemove = []; // Collect players to be removed
+
   for (const playerName in playerPositions) {
     const playerRow = playerPositions[playerName].row;
     const playerCol = playerPositions[playerName].col;
-
+  
     if ((playerRow === row && (playerCol === col || playerCol === col - 1 || playerCol === col + 1)) ||
       (playerCol === col && (playerRow === row - 1 || playerRow === row + 1))) {
+      
       playerLives[playerName] -= 1;
       retriveLive(playerName, playerLives[playerName]);
+  
       console.log(`${playerName} a été touché, il lui reste ${playerLives[playerName]} vies`);
-      if (playerLives[playerName] <= 0 && playerName == CurrentJoueur) {
-        removePlayer(playerName);
+  
+      if (playerLives[playerName] == 0 && playerName != CurrentJoueur) {
+        playersToRemove.push(playerName); // Collect player for removal later
+      }
+  
+      if (CurrentJoueur == playerName && playerLives[playerName] == 0) {
+        const message = {
+          type: 'playerDefeated',
+          name: playerName,
+        };
+  
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify(message));
+        } else {
+          console.warn('WebSocket connection is not open.');
+        }
+  
+        document.body.innerHTML = "";
+        // document.body.appendChild(youthewinner.render())
+        document.body.appendChild(gameover.render());
       }
     }
   }
+  
+  // Safely remove the players collected in the array
+  playersToRemove.forEach(playerName => {
+    removePlayer(playerName); // Now it's safe to delete
+  });
+  
 }
 
 function retriveLive(playerName, life) {
@@ -404,7 +424,7 @@ export function createLifeCounter(playerName, life) {
     VDOM.createElement('img', { class: `lifecounter-${playerName}-${index}`, src: '../assets/heart.svg', alt: 'heart life' })
   );
   return VDOM.createElement('div', { class: `gamerightpart lifecounter-${playerName}` },
-    VDOM.createElement('div', { class: 'lifecounter' }, VDOM.createElement('p', { class: 'playerlife' },playerName),
+    VDOM.createElement('div', { class: 'lifecounter' }, VDOM.createElement('p', { class: 'playerlife' }, playerName),
       ...hearts
     ),
   );
