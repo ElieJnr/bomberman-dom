@@ -139,8 +139,8 @@ func HandleClientDisconnection(player *Player) {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
-	delete(room.Players, player.Name)
-	room.PlayerCount--
+	// delete(room.Players, player.Name)
+	// room.PlayerCount--
 
 	if _, exists := room.Players[player.Name]; exists {
 		if room.PlayerCount == 1 {
@@ -174,17 +174,21 @@ func BroadcastToRoom(room *Room, message Message) {
 	}
 }
 
-func HandlePlayerRemoval(player *Player, room *Room, isDefeated bool) {
+func HandlePlayerRemoval(player *Player, room *Room) {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 	fmt.Println("HandlePlayerRemoval", room.PlayerCount)
 
-	if isDefeated {
-		player.Lives--
-	}
+	// if isDefeated {
+	// 	player.Lives--
+	// }
 
-	delete(room.Players, player.Name)
-	room.PlayerCount--
+	if player.Lives == 0 {
+		if _, exists := room.Players[player.Name]; exists {
+			delete(room.Players, player.Name)
+			room.PlayerCount--
+		}
+	}
 
 	// var messageContent string
 	// if isDefeated {

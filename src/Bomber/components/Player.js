@@ -32,12 +32,12 @@ function canPerformAction(playerName) {
   return false;
 }
 
-export function updatePlayerAction(playerName, action, ix, iy) {
+export function updatePlayerAction(playerName, action, ix, iy, lives) {
   console.log(`${playerName} action: ${action} ix ${ix} yi ${iy}`);
   // Initialize player states if not already set
   if (!boxplaced.hasOwnProperty(playerName)) boxplaced[playerName] = 1;
   if (!powerUp.hasOwnProperty(playerName)) powerUp[playerName] = false;
-  if (!playerLives.hasOwnProperty(playerName)) playerLives[playerName] = 3;
+   playerLives[playerName] = lives;
 
   playerPositions[playerName] = playerPositions[playerName] || {
     row: ix,
@@ -342,42 +342,36 @@ function destroyBrick(row, col, playername) {
   });
 
   // Check collisions with players
-  const playersToRemove = []; // Collect players to be removed
+  const playersToRemove = []; 
+  
 
   for (const playerName in playerPositions) {
     const playerRow = playerPositions[playerName].row;
     const playerCol = playerPositions[playerName].col;
   
+    // Check if the player is in the affected area of the bomb
     if ((playerRow === row && (playerCol === col || playerCol === col - 1 || playerCol === col + 1)) ||
-      (playerCol === col && (playerRow === row - 1 || playerRow === row + 1))) {
-      
-      playerLives[playerName] -= 1;
-      retriveLive(playerName, playerLives[playerName]);
+        (playerCol === col && (playerRow === row - 1 || playerRow === row + 1))) {
+  
+      // Send the subtractLife message only for the player who has been hit
+      ws.send(JSON.stringify({ type: 'subtractLife', name: playerName }));
+      retriveLive(playerName, playerLives[playerName]-1)
   
       console.log(`${playerName} a été touché, il lui reste ${playerLives[playerName]} vies`);
   
-      if (playerLives[playerName] == 0 && playerName != CurrentJoueur) {
+      // Handle the case when the player's lives reach 0
+      if (playerLives[playerName] == 1 && playerName != CurrentJoueur) {
         playersToRemove.push(playerName); // Collect player for removal later
       }
   
-      if (CurrentJoueur == playerName && playerLives[playerName] == 0) {
-        const message = {
-          type: 'playerDefeated',
-          name: playerName,
-        };
-  
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify(message));
-        } else {
-          console.warn('WebSocket connection is not open.');
-        }
-  
+      // Special case when the current player has 0 lives
+      if (CurrentJoueur == playerName && playerLives[playerName] == 1) {
         document.body.innerHTML = "";
-        // document.body.appendChild(youthewinner.render())
         document.body.appendChild(gameover.render());
       }
     }
   }
+  
   
   // Safely remove the players collected in the array
   playersToRemove.forEach(playerName => {

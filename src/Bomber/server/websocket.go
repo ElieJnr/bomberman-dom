@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -80,19 +81,35 @@ func HandlePlayerMessages(player *Player) {
 			break
 		}
 
-		HandleMessage(player, msg)
+		HandleMessage(player, msg, room)
 	}
 }
 
-func HandleMessage(player *Player, msg Message) {
+func SubtractLives(player *Player) bool {
+	// Subtract a life and check if the player is defeated
+	player.Lives--
+	return player.Lives == 0
+}
+
+func HandleMessage(player *Player, msg Message, room *Room) {
 	switch msg.Type {
 	case "join":
 		HandleJoin(player, msg.Name)
 		gestionFirstTimer()
 	case "action":
+		fmt.Println("players", player)
+		fmt.Println("msg", msg)
+		fmt.Println("room", room)
+		if msg.Name == player.Name {
+			msg.Lives = player.Lives
+		}
 		broadcast <- msg
-	case "playerDefeated":
-		HandlePlayerRemoval(player, room, true)
+	case "subtractLife":
+			if msg.Name == player.Name{
+				if SubtractLives(player) {
+					HandlePlayerRemoval(player, room)
+				}
+			}
 	case "message":
 		broadcastMessage := Message{
 			Type:        "message",
@@ -105,6 +122,28 @@ func HandleMessage(player *Player, msg Message) {
 		log.Printf("Unknown message type: %s", msg.Type)
 	}
 }
+
+// func HandleMessage(player *Player, msg Message) {
+// 	switch msg.Type {
+// 	case "join":
+// 		HandleJoin(player, msg.Name)
+// 		gestionFirstTimer()
+// 	case "action":
+// 		broadcast <- msg
+// 	case "playerDefeated":
+// 		HandlePlayerRemoval(player, room)
+// 	case "message":
+// 		broadcastMessage := Message{
+// 			Type:        "message",
+// 			Name:        msg.Name,
+// 			PlayerCount: room.PlayerCount,
+// 			Content:     msg.Content,
+// 		}
+// 		BroadcastToRoom(room, broadcastMessage)
+// 	default:
+// 		log.Printf("Unknown message type: %s", msg.Type)
+// 	}
+// }
 
 func ResetRoom() {
 	room.Players = make(map[string]*Player)

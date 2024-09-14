@@ -104,7 +104,7 @@ function HandlePseudo() {
 function handlePlayerAction(data) {
   console.log("Received player action:", data);
   const playerPosition = allpos[data.name];
-  updatePlayerAction(data.name, data.action, playerPosition.x, playerPosition.y);
+  updatePlayerAction(data.name, data.action, playerPosition.x, playerPosition.y, data.lives);
 }
 
 function handlePlayerJoined(data) {
