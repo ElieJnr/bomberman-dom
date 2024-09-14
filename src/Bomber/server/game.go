@@ -91,51 +91,43 @@ func HandleJoin(player *Player, name string) {
 	if room.PlayerCount == 1 {
 		player.Position.X = 1
 		player.Position.Y = 1
-	}else if room.PlayerCount == 2 {
+	} else if room.PlayerCount == 2 {
 		player.Position.X = 1
 		player.Position.Y = 19
-	}else if room.PlayerCount == 3 {
+	} else if room.PlayerCount == 3 {
 		player.Position.X = 11
 		player.Position.Y = 1
-	}else if room.PlayerCount == 4 {
+	} else if room.PlayerCount == 4 {
 		player.Position.X = 11
 		player.Position.Y = 19
 	}
 
 	BroadcastPlayerJoined(name)
+	fmt.Println("connected", name)
 
-	
-
-	 if room.PlayerCount == 4 {
-		fmt.Println("haaaaaaaaaaa")
-		room.CountdownStarted = true
-		room.WaitingTimerStarted = true
-		room.GameStarted = true
-		broadcast <- Message{
-			Type:        "startPreparation",
-			Content:     "Starting countdown in 10 seconds.",
-			PlayerCount: room.PlayerCount,
-			PlayerOrder: GetPlayerOrder(),
-		}
-		fmt.Println("xxxxxxxxxxxxxxxxx", room.PlayerCount)
-	}else if room.PlayerCount >= 2 && room.PlayerCount < 4 && !room.CountdownStarted && !room.WaitingTimerStarted {
+	if room.PlayerCount >= 2 && !room.CountdownStarted && !room.WaitingTimerStarted {
 		room.WaitingTimerStarted = true
 		go StartWaitingTimer()
 	}
-	gestionFirstTimer()
+	// gestionFirstTimer()
 }
 
 func StartWaitingTimer() {
-	time.Sleep(room.WaitingTime)
+	for i := 0; i < int(room.WaitingTime.Seconds()); i++ {
+		time.Sleep(1 * time.Second)
+		room.mu.Lock()
+		if room.PlayerCount == 4 {
+			room.mu.Unlock()
+			break
+		}
+		room.mu.Unlock()
+	}
 
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
-	if room.GameStarted || room.PlayerCount == 4{
-		return
-	}
-
 	if room.PlayerCount >= 2 {
+		fmt.Println("StartWaitingTimerFinish", room.PlayerCount)
 		room.CountdownStarted = true
 		broadcast <- Message{
 			Type:        "startPreparation",
@@ -144,28 +136,10 @@ func StartWaitingTimer() {
 			PlayerOrder: GetPlayerOrder(),
 		}
 		room.GameStarted = true
-		// go StartCountdown()
 	} else {
 		room.WaitingTimerStarted = false
 	}
 }
-
-// func StartCountdown() {
-// 	time.Sleep(room.CountdownTime)
-// 	room.mu.Lock()
-// 	defer room.mu.Unlock()
-// 	if room.PlayerCount >= 2 {
-// 		room.GameStarted = true
-// 		broadcast <- Message{
-// 			Type:        "startPreparation",
-// 			Content:     "The game is now starting!",
-// 			PlayerCount: room.PlayerCount,
-// 			PlayerOrder: GetPlayerOrder(),
-// 		}
-// 	} else {
-// 		ResetRoom()
-// 	}
-// }
 
 func HandleClientDisconnection(player *Player) {
 	room.mu.Lock()
@@ -232,7 +206,7 @@ func HandlePlayerRemoval(player *Player, room *Room) {
 	fmt.Println("HandlePlayerRemoval1", room.PlayerCount)
 
 	if room.PlayerCount == 1 {
-	fmt.Println("HandlePlayerRemoval2", room.PlayerCount)
+		fmt.Println("HandlePlayerRemoval2", room.PlayerCount)
 
 		for _, remainingPlayer := range room.Players {
 			err := remainingPlayer.Connection.WriteJSON(Message{
@@ -245,7 +219,7 @@ func HandlePlayerRemoval(player *Player, room *Room) {
 		}
 		// EndGame("The game has ended as there is only one player remaining.")
 	} else if room.PlayerCount > 1 {
-	fmt.Println("HandlePlayerRemoval3", room.PlayerCount)
+		fmt.Println("HandlePlayerRemoval3", room.PlayerCount)
 
 		// broadcastMessage := Message{
 		// 	Type:        "playerRemoved",

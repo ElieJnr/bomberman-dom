@@ -16,6 +16,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+
 type Player struct {
 	Name       string
 	Connection *websocket.Conn
@@ -161,7 +162,7 @@ func HandleMessage(player *Player, msg Message, room *Room) {
 		}
 		BroadcastToRoom(room, broadcastMessage)
 	case "updatePosition":
-		fmt.Println("yes?",msg)
+		// fmt.Println("yes?",msg)
 		HandleUpdatePosition(msg, player)
 	default:
 		log.Printf("Unknown message type: %s", msg.Type)
