@@ -21,6 +21,12 @@ type Player struct {
 	Connection *websocket.Conn
 	Lives      int
 	mu         sync.Mutex
+	Position   Positions
+}
+
+type Positions struct {
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 type Room struct {
@@ -47,6 +53,8 @@ type Message struct {
 	PlayerCount int      `json:"playerCount,omitempty"`
 	PlayerOrder []Player `json:"playerOrder,omitempty"`
 	Lives       int      `json:"lives,omitempty"`
+	Row         int      `json:"row,omitempty"`
+	Col         int      `json:"col,omitempty"`
 }
 
 var (
@@ -85,6 +93,38 @@ func HandlePlayerMessages(player *Player) {
 	}
 }
 
+// Positions
+
+func HandleUpdatePosition(msg Message, player *Player) {
+	playerName := msg.Name
+
+
+	row := msg.Row // JSON numbers are unmarshalled as float64
+
+	col := msg.Col
+
+	fmt.Println("col", col)
+	fmt.Println("row", row)
+
+	// Convert float64 to int
+	// rowInt := int(row)
+	// colInt := int(col)
+
+	if playerName == player.Name{
+		player.Position.X = row
+		player.Position.Y = col
+	}
+	message := Message{
+		Type: "updatePosition",
+		Name: playerName,
+		Row:  row,
+		Col:  col,
+	}
+
+	broadcast <- message
+
+}
+
 func SubtractLives(player *Player) bool {
 	// Subtract a life and check if the player is defeated
 	player.Lives--
@@ -97,19 +137,21 @@ func HandleMessage(player *Player, msg Message, room *Room) {
 		HandleJoin(player, msg.Name)
 		gestionFirstTimer()
 	case "action":
-		fmt.Println("players", player)
-		fmt.Println("msg", msg)
-		fmt.Println("room", room)
+		// fmt.Println("players", player)
+		// fmt.Println("msg", msg)
+		// fmt.Println("room", room)
 		if msg.Name == player.Name {
 			msg.Lives = player.Lives
+			msg.Row = player.Position.X
+			msg.Col = player.Position.Y
 		}
 		broadcast <- msg
 	case "subtractLife":
-			if msg.Name == player.Name{
-				if SubtractLives(player) {
-					HandlePlayerRemoval(player, room)
-				}
+		if msg.Name == player.Name {
+			if SubtractLives(player) {
+				HandlePlayerRemoval(player, room)
 			}
+		}
 	case "message":
 		broadcastMessage := Message{
 			Type:        "message",
@@ -118,6 +160,9 @@ func HandleMessage(player *Player, msg Message, room *Room) {
 			Content:     msg.Content,
 		}
 		BroadcastToRoom(room, broadcastMessage)
+	case "updatePosition":
+		fmt.Println("yes?",msg)
+		HandleUpdatePosition(msg, player)
 	default:
 		log.Printf("Unknown message type: %s", msg.Type)
 	}

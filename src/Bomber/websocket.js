@@ -1,5 +1,5 @@
 import { createChat, displayMessage } from './components/Chat.js';
-import { updatePlayerAction } from './components/Player.js';
+import { updatePlayerAction, updatePlayerPosition } from './components/Player.js';
 import { waitingRoom } from './components/waitingRoom.js';
 import { startPreparation } from './game.js';
 import { createCountdown, requestFullScreen } from './utils.js';
@@ -48,6 +48,9 @@ function handleWebSocketMessage(data) {
     case 'action':
       handlePlayerAction(data);
       break;
+    case 'updatePosition':
+      updatePlayerPosition(data.name, data.row, data.col)
+      break;
     case 'playerJoined':
       handlePlayerJoined(data);
       break;
@@ -68,11 +71,19 @@ function handleWebSocketMessage(data) {
       break;
     case 'error':
       console.warn(data.content);
-      window.location.reload();
+      HandleError(data.content)
       break;
     default:
       console.error('Unknown WebSocket message type:', data.type);
   }
+}
+
+
+
+function HandleError(content) {
+  let errorName = VDOM.createElement("div", { id: "errorName", style: "color:red;margin-top:10px;font-size:x-large;" }, content);
+
+  if (!document.getElementById("errorName")) { VDOM.appendChildToElementById("app", errorName); setTimeout(() => (document.getElementById("errorName").remove()), 3000) }
 }
 
 // function displayGameStartedMessage(message) {
@@ -104,7 +115,7 @@ function HandlePseudo() {
 function handlePlayerAction(data) {
   console.log("Received player action:", data);
   const playerPosition = allpos[data.name];
-  updatePlayerAction(data.name, data.action, playerPosition.x, playerPosition.y, data.lives);
+  updatePlayerAction(data.name, data.action, data.row, data.col, data.lives);
 }
 
 function handlePlayerJoined(data) {

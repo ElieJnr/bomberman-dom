@@ -37,7 +37,7 @@ export function updatePlayerAction(playerName, action, ix, iy, lives) {
   // Initialize player states if not already set
   if (!boxplaced.hasOwnProperty(playerName)) boxplaced[playerName] = 1;
   if (!powerUp.hasOwnProperty(playerName)) powerUp[playerName] = false;
-   playerLives[playerName] = lives;
+  playerLives[playerName] = lives;
 
   playerPositions[playerName] = playerPositions[playerName] || {
     row: ix,
@@ -46,6 +46,9 @@ export function updatePlayerAction(playerName, action, ix, iy, lives) {
   let { row, col } = playerPositions[playerName];
   let newRow = row;
   let newCol = col;
+
+  console.log("xxxxxxxxxxxxxxxxxxxxx",newCol, newRow);
+  
 
   if (whichpowerup == "bomb" && powerUp[playerName]) {
     boxplaced[playerName] = 2;
@@ -67,9 +70,12 @@ export function updatePlayerAction(playerName, action, ix, iy, lives) {
     case "move_left":
       if (canPerformAction(playerName)) {
         newCol = Math.max(1, col - speed);
+        ws.send(JSON.stringify({ type: 'updatePosition', name: playerName, col: newCol, row: newRow }));
         CollisionPowerup(newRow, newCol, playerName);
-        lastmove = "L"
-        console.log("newRow", newRow, "newCol", newCol);
+        lastmove = "L";
+        // console.log("newRow", newRow, "newCol", newCol);
+
+        // updatePlayerPosition(playerName, newRow, newCol);
       } else {
         console.log(`${playerName} is moving too fast. Please wait.`);
       }
@@ -78,8 +84,11 @@ export function updatePlayerAction(playerName, action, ix, iy, lives) {
     case "move_right":
       if (canPerformAction(playerName)) {
         newCol = Math.min(tileMap.columns - 2, col + speed);
+        ws.send(JSON.stringify({ type: 'updatePosition', name: playerName, col: newCol, row: newRow }));
         CollisionPowerup(newRow, newCol, playerName);
-        lastmove = "R"
+        lastmove = "R";
+
+        // updatePlayerPosition(playerName, newRow, newCol);
       } else {
         console.log(`${playerName} is moving too fast. Please wait.`);
       }
@@ -88,8 +97,11 @@ export function updatePlayerAction(playerName, action, ix, iy, lives) {
     case "move_up":
       if (canPerformAction(playerName)) {
         newRow = Math.max(1, row - speed);
+        ws.send(JSON.stringify({ type: 'updatePosition', name: playerName, col: newCol, row: newRow }));
         CollisionPowerup(newRow, newCol, playerName);
-        lastmove = "U"
+        lastmove = "U";
+
+        // updatePlayerPosition(playerName, newRow, newCol);
       } else {
         console.log(`${playerName} is moving too fast. Please wait.`);
       }
@@ -98,8 +110,10 @@ export function updatePlayerAction(playerName, action, ix, iy, lives) {
     case "move_down":
       if (canPerformAction(playerName)) {
         newRow = Math.min(tileMap.rows - 2, row + speed);
+        ws.send(JSON.stringify({ type: 'updatePosition', name: playerName, col: newCol, row: newRow }));
         CollisionPowerup(newRow, newCol, playerName);
-        lastmove = "D"
+        lastmove = "D";
+        // updatePlayerPosition(playerName, newRow, newCol);
       } else {
         console.log(`${playerName} is moving too fast. Please wait.`);
       }
@@ -130,63 +144,69 @@ export function updatePlayerAction(playerName, action, ix, iy, lives) {
       return;
   }
 
+  // Utility to update player position and synchronize across players
+}
+export function updatePlayerPosition(playerName, newRow, newCol) {
+  // Check if the movement is allowed
   if (speed === 1) {
     if (canMoveTo(newRow, newCol)) {
-      playerPositions[playerName] = { row: newRow, col: newCol };
+      // Update local player position
 
+      // Update the DOM to reflect the new position
       const playerElement = document.getElementById(`player-${playerName}`);
+      playerPositions[playerName] = { row: newRow, col: newCol };
       if (playerElement) {
         playerElement.style.left = `${newCol * tileMap.tileSize}px`;
         playerElement.style.top = `${newRow * tileMap.tileSize}px`;
       }
+
+      // Broadcast the new position to all players
+      // ws.send(JSON.stringify({
+      //   type: 'updatePosition',
+      //   name: playerName,
+      //   row: newRow,
+      //   col: newCol
+      // }));
     }
   } else if (speed === 2) {
-    // const newRowBy2 = row + (newRow > row ? 2 : -2); 
-    // const newColBy2 = col + (newCol > col ? 2 : -2);  
-    console.log("c'ant move by 2");
-    var tempcol, temprow
+    // Double-speed movement logic
+    var tempcol, temprow;
 
-    if (lastmove == 'D') {
-      temprow = newRow - 1
-      tempcol = newCol
-    } else if (lastmove == "U") {
-      temprow = newRow + 1
-      tempcol = newCol
-    } else if (lastmove == "L") {
-      tempcol = newCol + 1
-      temprow = newRow
-    } else if (lastmove == "R") {
-      tempcol = newCol - 1
-      temprow = newRow
+    if (lastmove === 'D') {
+      temprow = newRow - 1;
+      tempcol = newCol;
+    } else if (lastmove === "U") {
+      temprow = newRow + 1;
+      tempcol = newCol;
+    } else if (lastmove === "L") {
+      tempcol = newCol + 1;
+      temprow = newRow;
+    } else if (lastmove === "R") {
+      tempcol = newCol - 1;
+      temprow = newRow;
     }
-
-    console.log("xxxxx", tempcol, temprow);
-
 
     if (canMoveTo(newRow, newCol) && canMoveTo(temprow, tempcol)) {
-      console.log("2");
-
       playerPositions[playerName] = { row: newRow, col: newCol };
-
-      const playerElement = document.getElementById(`player-${playerName}`);
-      if (playerElement) {
-        playerElement.style.left = `${newCol * tileMap.tileSize}px`;
-        playerElement.style.top = `${newRow * tileMap.tileSize}px`;
-      }
     } else if (canMoveTo(temprow, tempcol)) {
-      console.log("1");
-
       playerPositions[playerName] = { row: temprow, col: tempcol };
-
-      const playerElement = document.getElementById(`player-${playerName}`);
-      if (playerElement) {
-        playerElement.style.left = `${(tempcol) * tileMap.tileSize}px`;
-        playerElement.style.top = `${(temprow) * tileMap.tileSize}px`;
-      }
-
     }
-  }
 
+    // Update the DOM for fast movement
+    const playerElement = document.getElementById(`player-${playerName}`);
+    if (playerElement) {
+      playerElement.style.left = `${playerPositions[playerName].col * tileMap.tileSize}px`;
+      playerElement.style.top = `${playerPositions[playerName].row * tileMap.tileSize}px`;
+    }
+
+    // Broadcast fast movement
+    // ws.send(JSON.stringify({
+    //   type: 'updatePosition',
+    //   name: playerName,
+    //   row: playerPositions[playerName].row,
+    //   col: playerPositions[playerName].col
+    // }));
+  }
 }
 
 function canMoveTo(row, col) {
@@ -262,7 +282,7 @@ function placeBomb(row, col, playername) {
 
 export function removePlayer(playerName) {
   console.log("CurrentJoueur", CurrentJoueur);
-  
+
   const playerElement = document.getElementById(`player-${playerName}`);
   const map = document.getElementById("mapDiv");
 
@@ -273,7 +293,7 @@ export function removePlayer(playerName) {
     delete playerPositions[playerName];
     delete playerLives[playerName];
 
-   
+
   } else {
     console.warn(`Player element with name ${playerName} not found.`);
   }
@@ -342,28 +362,28 @@ function destroyBrick(row, col, playername) {
   });
 
   // Check collisions with players
-  const playersToRemove = []; 
-  
+  const playersToRemove = [];
+
 
   for (const playerName in playerPositions) {
     const playerRow = playerPositions[playerName].row;
     const playerCol = playerPositions[playerName].col;
-  
+
     // Check if the player is in the affected area of the bomb
     if ((playerRow === row && (playerCol === col || playerCol === col - 1 || playerCol === col + 1)) ||
-        (playerCol === col && (playerRow === row - 1 || playerRow === row + 1))) {
-  
+      (playerCol === col && (playerRow === row - 1 || playerRow === row + 1))) {
+
       // Send the subtractLife message only for the player who has been hit
       ws.send(JSON.stringify({ type: 'subtractLife', name: playerName }));
-      retriveLive(playerName, playerLives[playerName]-1)
-  
+      retriveLive(playerName, playerLives[playerName] - 1)
+
       console.log(`${playerName} a été touché, il lui reste ${playerLives[playerName]} vies`);
-  
+
       // Handle the case when the player's lives reach 0
       if (playerLives[playerName] == 1 && playerName != CurrentJoueur) {
         playersToRemove.push(playerName); // Collect player for removal later
       }
-  
+
       // Special case when the current player has 0 lives
       if (CurrentJoueur == playerName && playerLives[playerName] == 1) {
         document.body.innerHTML = "";
@@ -371,13 +391,14 @@ function destroyBrick(row, col, playername) {
       }
     }
   }
-  
-  
+
+
+
   // Safely remove the players collected in the array
   playersToRemove.forEach(playerName => {
     removePlayer(playerName); // Now it's safe to delete
   });
-  
+
 }
 
 function retriveLive(playerName, life) {

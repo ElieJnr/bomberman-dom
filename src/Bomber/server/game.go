@@ -88,10 +88,37 @@ func HandleJoin(player *Player, name string) {
 	player.Name = name
 	room.Players[name] = player
 	room.PlayerCount++
+	if room.PlayerCount == 1 {
+		player.Position.X = 1
+		player.Position.Y = 1
+	}else if room.PlayerCount == 2 {
+		player.Position.X = 1
+		player.Position.Y = 19
+	}else if room.PlayerCount == 3 {
+		player.Position.X = 11
+		player.Position.Y = 1
+	}else if room.PlayerCount == 4 {
+		player.Position.X = 11
+		player.Position.Y = 19
+	}
 
 	BroadcastPlayerJoined(name)
 
-	if room.PlayerCount >= 2 && !room.CountdownStarted && !room.WaitingTimerStarted {
+	
+
+	 if room.PlayerCount == 4 {
+		fmt.Println("haaaaaaaaaaa")
+		room.CountdownStarted = true
+		room.WaitingTimerStarted = true
+		room.GameStarted = true
+		broadcast <- Message{
+			Type:        "startPreparation",
+			Content:     "Starting countdown in 10 seconds.",
+			PlayerCount: room.PlayerCount,
+			PlayerOrder: GetPlayerOrder(),
+		}
+		fmt.Println("xxxxxxxxxxxxxxxxx", room.PlayerCount)
+	}else if room.PlayerCount >= 2 && room.PlayerCount < 4 && !room.CountdownStarted && !room.WaitingTimerStarted {
 		room.WaitingTimerStarted = true
 		go StartWaitingTimer()
 	}
@@ -104,6 +131,10 @@ func StartWaitingTimer() {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
+	if room.GameStarted || room.PlayerCount == 4{
+		return
+	}
+
 	if room.PlayerCount >= 2 {
 		room.CountdownStarted = true
 		broadcast <- Message{
@@ -112,6 +143,7 @@ func StartWaitingTimer() {
 			PlayerCount: room.PlayerCount,
 			PlayerOrder: GetPlayerOrder(),
 		}
+		room.GameStarted = true
 		// go StartCountdown()
 	} else {
 		room.WaitingTimerStarted = false
