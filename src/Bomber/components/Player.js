@@ -54,7 +54,10 @@ export function updatePlayerAction(playerName, action, ix, iy, lives) {
     boxplaced[playerName] = 2;
   }
 
-  if (whichpowerup === "speed") {
+  console.log("powerup",powerUp[playerName]);
+  
+
+  if (whichpowerup === "speed" && powerUp[playerName]) {
     speed = 2;
     setTimeout(() => {
       powerUp[playerName] = false;
@@ -281,21 +284,28 @@ function placeBomb(row, col, playername) {
 
 
 export function removePlayer(playerName) {
-  console.log("CurrentJoueur", CurrentJoueur);
 
-  const playerElement = document.getElementById(`player-${playerName}`);
-  const map = document.getElementById("mapDiv");
-
-  if (playerElement) {
-    map.removeChild(playerElement);
-
-    delete playerElements[playerName];
-    delete playerPositions[playerName];
-    delete playerLives[playerName];
-
-
-  } else {
-    console.warn(`Player element with name ${playerName} not found.`);
+  if (playerName !== CurrentJoueur) {
+    console.log("here1");
+    
+    const playerElement = document.getElementById(`player-${playerName}`);
+    const map = document.getElementById("mapDiv");
+    
+    if (playerElement) {
+      map.removeChild(playerElement);
+      
+      delete playerElements[playerName];
+      delete playerPositions[playerName];
+      delete playerLives[playerName];
+      
+      
+    } else {
+      console.warn(`Player element with name ${playerName} not found.`);
+    }
+  }else{
+    console.log("here12");
+    document.body.innerHTML = "";
+    document.body.appendChild(gameover.render());
   }
 }
 
@@ -380,24 +390,24 @@ function destroyBrick(row, col, playername) {
       console.log(`${playerName} a été touché, il lui reste ${playerLives[playerName]} vies`);
 
       // Handle the case when the player's lives reach 0
-      if (playerLives[playerName] == 1 && playerName != CurrentJoueur) {
-        playersToRemove.push(playerName); // Collect player for removal later
-      }
+      // if (playerLives[playerName] == 1 && playerName != CurrentJoueur) {
+      //   playersToRemove.push(playerName); // Collect player for removal later
+      // }
 
       // Special case when the current player has 0 lives
-      if (CurrentJoueur == playerName && playerLives[playerName] == 1) {
-        document.body.innerHTML = "";
-        document.body.appendChild(gameover.render());
-      }
+      // if (CurrentJoueur == playerName && playerLives[playerName] == 1) {
+        // document.body.innerHTML = "";
+        // document.body.appendChild(gameover.render());
+      // }
     }
   }
 
 
 
   // Safely remove the players collected in the array
-  playersToRemove.forEach(playerName => {
-    removePlayer(playerName); // Now it's safe to delete
-  });
+  // playersToRemove.forEach(playerName => {
+  //   removePlayer(playerName); // Now it's safe to delete
+  // });
 
 }
 

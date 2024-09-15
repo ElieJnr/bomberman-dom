@@ -215,8 +215,10 @@ func GetPlayerOrder() []Player {
 
 func HandleBroadcast() {
 	for msg := range broadcast {
+		fmt.Println("msg",msg)
 		room.mu.RLock()
 		for _, player := range room.Players {
+			fmt.Println("player",player)
 			go func(p *Player) {
 				SendToPlayer(p, msg)
 			}(player)

@@ -8,7 +8,7 @@ export function createEndScreen(imageFileName) {
         ),
         VDOM.createElement('div', { id: 'goBackHome', style: { fontFamily: "'Press Start 2P'", borderBottom: 'solid 2px' } },
             VDOM.createElement('p', {}, 
-                VDOM.createElement('a', {href: "/src/Bomber/public/"}, "go to home")
+                VDOM.createElement('a', {href:"", onclick: "window.location.reload(); return false;"}, "go to home")
             )
         )
     );

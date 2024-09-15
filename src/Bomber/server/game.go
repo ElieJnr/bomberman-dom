@@ -188,20 +188,26 @@ func HandlePlayerRemoval(player *Player, room *Room) {
 	// if isDefeated {
 	// 	player.Lives--
 	// }
+	var nameplayer = player.Name
+	for _, player := range room.Players {
+		player.mu.Lock()
+		message := Message{
+			Type: "rmplayer",
+			Name: nameplayer,
+		}
+		err := player.Connection.WriteJSON(message)
+		player.mu.Unlock()
+		if err != nil {
+			fmt.Printf("Error sending message to player %s: %v\n", player.Name, err)
+		}
+	}
 
-	if player.Lives == 0 {
+	// if player.Lives == 0  {
 		if _, exists := room.Players[player.Name]; exists {
 			delete(room.Players, player.Name)
 			room.PlayerCount--
 		}
-	}
 
-	// var messageContent string
-	// if isDefeated {
-	// 	messageContent = fmt.Sprintf("Player %s has been defeated. %d players remaining.", player.Name, room.PlayerCount)
-	// } else {
-	// 	messageContent = fmt.Sprintf("Player %s has disconnected. %d players remaining.", player.Name, room.PlayerCount)
-	// }
 
 	fmt.Println("HandlePlayerRemoval1", room.PlayerCount)
 

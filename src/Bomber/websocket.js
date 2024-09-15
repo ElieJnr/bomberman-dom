@@ -1,5 +1,5 @@
 import { createChat, displayMessage } from './components/Chat.js';
-import { updatePlayerAction, updatePlayerPosition } from './components/Player.js';
+import { removePlayer, updatePlayerAction, updatePlayerPosition } from './components/Player.js';
 import { waitingRoom } from './components/waitingRoom.js';
 import { startPreparation } from './game.js';
 import { createCountdown, requestFullScreen } from './utils.js';
@@ -64,6 +64,11 @@ function handleWebSocketMessage(data) {
     // case 'gameStarting':
     //   displayGameStartedMessage(data.content);
     //   break;
+    case 'rmplayer':
+      console.log("i received that player", data.name ,"is dead");
+      
+      removePlayer(data.name)
+      break
     case 'gameEnded':
       console.log("gameEnded", data);
 
