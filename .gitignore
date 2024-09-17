@@ -88,7 +88,6 @@ test-results/
 *.db-journal
 
 # Images
-*.png
 *.jpg
 *.jpeg
 *.gif

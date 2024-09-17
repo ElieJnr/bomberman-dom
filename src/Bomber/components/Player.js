@@ -411,35 +411,48 @@ function destroyBrick(row, col, playername) {
 
 }
 
-function retriveLive(playerName, life) {
-  // Select the correct life counter container based on the player's name
-  const lifecounterContainer = document.querySelector(`.lifecounter-${playerName}`);
+// function retriveLive(playerName, life) {
+//   // Select the correct life counter container based on the player's name
+//   const lifecounterContainer = document.querySelector(`.lifecounter-${playerName}`);
 
-  if (lifecounterContainer) {
-    // Assuming the hearts are inside a deeper div, adjust to target the actual container holding the hearts
-    const heartsContainer = lifecounterContainer.querySelector('.lifecounter');
+//   if (lifecounterContainer) {
+//     // Assuming the hearts are inside a deeper div, adjust to target the actual container holding the hearts
+//     const heartsContainer = lifecounterContainer.querySelector('.lifecounter');
 
-    if (heartsContainer) {
-      const hearts = heartsContainer.querySelectorAll('img'); // Target heart images
+//     if (heartsContainer) {
+//       const hearts = heartsContainer.querySelectorAll('img'); // Target heart images
 
-      if (hearts.length > life) {
-        const lastHeart = hearts[hearts.length - 1];
+//       if (hearts.length > life) {
+//         const lastHeart = hearts[hearts.length - 1];
 
-        if (lastHeart && heartsContainer.contains(lastHeart)) {
-          console.log("lifecounter", heartsContainer, "lastHeart", lastHeart);
+//         if (lastHeart && heartsContainer.contains(lastHeart)) {
+//           console.log("lifecounter", heartsContainer, "lastHeart", lastHeart);
 
-          heartsContainer.removeChild(lastHeart);  // Remove the heart from the container
-        } else {
-          console.warn('The heart to be removed is not a child of the hearts container.');
-        }
-      } else {
-        console.warn(`Hearts count (${hearts.length}) does not exceed life (${life}). No heart to remove.`);
-      }
-    } else {
-      console.warn('Hearts container not found within the lifecounter.');
+//           heartsContainer.removeChild(lastHeart);  // Remove the heart from the container
+//         } else {
+//           console.warn('The heart to be removed is not a child of the hearts container.');
+//         }
+//       } else {
+//         console.warn(`Hearts count (${hearts.length}) does not exceed life (${life}). No heart to remove.`);
+//       }
+//     } else {
+//       console.warn('Hearts container not found within the lifecounter.');
+//     }
+//   } else {
+//     console.warn(`Life counter for player ${playerName} not found.`);
+//   }
+// }
+
+function retriveLive(playerName) {
+  // Sélectionne directement le conteneur des cœurs pour le joueur donné
+  const heartsContainer = document.querySelector(`.lifecounter-${playerName} .lifecounter`);
+  
+  // Supprime directement le dernier cœur (image)
+  if (heartsContainer) {
+    const hearts = heartsContainer.querySelectorAll('img');
+    if (hearts.length > 0) {
+      heartsContainer.removeChild(hearts[hearts.length - 1]);
     }
-  } else {
-    console.warn(`Life counter for player ${playerName} not found.`);
   }
 }
 
