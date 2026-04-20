@@ -132,11 +132,3 @@ bomberman-dom/
 - Partie ne demarre pas:
   - il faut au moins 2 joueurs connectes
 
-## Roadmap
-
-Points encore a finaliser (voir `tachesRestantes.todo`):
-
-- stabilisation de la logique de jeu
-- reprise de partie sans devoir relancer la session
-- integration/affichage complet de certains power-ups
-- ajustements UI responsive sur certains ecrans
